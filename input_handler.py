@@ -3,13 +3,18 @@ import pygame
 
 class InputHandler:
     def __init__(self):
-        self.thread = None
         self.quit = False
+        self.escape = Key()
         self.up = Key()
         self.down = Key()
         self.right = Key()
         self.left = Key()
-        self.keys = [self.up, self.down, self.right, self.left]
+        self.w = Key()
+        self.s = Key()
+        self.d = Key()
+        self.a = Key()
+        self.keys = [self.up, self.down, self.right, self.left,
+                     self.w, self.s, self.d, self.a]
 
     def update(self):
         for key in self.keys:
@@ -22,13 +27,34 @@ class InputHandler:
 
             # Catch keyboard event
             pressed = None
-            if event.type == pygame.KEYDOWN: pressed = True
-            if event.type == pygame.KEYUP: pressed = False
-            if pressed != None:
+            if event.type == pygame.KEYDOWN:
+                pressed = True
+            if event.type == pygame.KEYUP:
+                pressed = False
+            if pressed is not None:
                 self.toggle(event, pressed)
 
     def toggle(self, event, pressed):
-        if event.key == pygame.K_UP: self.up.toggle(pressed)
+        if event.key is pygame.K_ESCAPE:
+            self.escape.toggle(pressed)
+
+        elif event.key is pygame.K_UP:
+            self.up.toggle(pressed)
+        elif event.key is pygame.K_DOWN:
+            self.down.toggle(pressed)
+        elif event.key is pygame.K_RIGHT:
+            self.right.toggle(pressed)
+        elif event.key is pygame.K_LEFT:
+            self.left.toggle(pressed)
+
+        elif event.key is pygame.K_w:
+            self.w.toggle(pressed)
+        elif event.key is pygame.K_s:
+            self.s.toggle(pressed)
+        elif event.key is pygame.K_d:
+            self.d.toggle(pressed)
+        elif event.key is pygame.K_a:
+            self.a.toggle(pressed)
 
 
 class Key:

@@ -28,7 +28,7 @@ class Game:
         # Set running to false
         self.running = False
         # Set state to None so it clears the current state and runs it's dispose method
-        self.GameStateManager.setState(None)
+        self.GameStateManager.set_state(None)
 
     def init(self):
         # Init pygame
@@ -40,7 +40,7 @@ class Game:
         self.canvas = pygame.Surface((GAME_WIDTH, GAME_HEIGHT)).convert()
 
         # Change to playstate
-        self.GameStateManager.setState(PlayState())
+        self.GameStateManager.set_state(PlayState())
 
     def loop(self):
         while self.running:

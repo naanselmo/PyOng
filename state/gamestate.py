@@ -22,19 +22,22 @@ class GameState(object):
 
 
 class GameStateManager:
+    def __init__(self):
+        pass
+
     game_state = None
 
-    def setState(self, game_state):
-        if (self.game_state != None):
+    def set_state(self, game_state):
+        if self.game_state is not None:
             self.game_state.dispose()
         self.game_state = game_state
-        if (self.game_state != None):
+        if self.game_state is not None:
             self.game_state.show()
 
     def render(self, canvas):
-        if (self.game_state != None):
+        if self.game_state is not None:
             self.game_state.render(canvas)
 
     def update(self, delta):
-        if (self.game_state != None):
+        if self.game_state is not None:
             self.game_state.update(delta)
