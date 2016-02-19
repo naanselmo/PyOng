@@ -1,10 +1,10 @@
 import pygame
-from pygame.locals import *
+
+from config import *
 from pygame.time import Clock
 from state.gamestate import GameStateManager
 from state.states import PlayState
 from input_handler import InputHandler
-from config import *
 
 
 class Game:

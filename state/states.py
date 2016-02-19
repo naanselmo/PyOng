@@ -1,6 +1,8 @@
-from gamestate import GameState
 import pygame
+
 from config import *
+from gamestate import GameState
+
 
 class PlayState(GameState):
     def __init__(self):
@@ -18,7 +20,7 @@ class PlayState(GameState):
         self.y += delta * self.vel_y
 
     def render(self, canvas):
-        canvas.blit(self.text, (GAME_WIDTH/2 - self.text.get_rect().width/2, self.y))
+        canvas.blit(self.text, (GAME_WIDTH / 2 - self.text.get_rect().width / 2, self.y))
 
     def dispose(self):
         pass
