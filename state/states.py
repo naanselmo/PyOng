@@ -5,7 +5,8 @@ from gamestate import GameState
 
 
 class PlayState(GameState):
-    def __init__(self):
+    def __init__(self, game):
+        super(PlayState, self).__init__(game)
         self.y = 10
         self.vel_y = 0.2
         self.text = None
@@ -15,6 +16,9 @@ class PlayState(GameState):
         self.text = font_renderer.render('Hello There', 1, (10, 10, 10))
 
     def update(self, delta):
+        if self.input.up.clicked:
+            print "Up clicked!"
+            self.state_manager.set_state(None)
         if self.y + self.text.get_rect().height >= GAME_HEIGHT or self.y < 0:
             self.vel_y *= -1
         self.y += delta * self.vel_y

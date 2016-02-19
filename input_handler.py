@@ -35,25 +35,25 @@ class InputHandler:
                 self.toggle(event, pressed)
 
     def toggle(self, event, pressed):
-        if event.key is pygame.K_ESCAPE:
+        if event.key == pygame.K_ESCAPE:
             self.escape.toggle(pressed)
 
-        elif event.key is pygame.K_UP:
+        elif event.key == pygame.K_UP:
             self.up.toggle(pressed)
-        elif event.key is pygame.K_DOWN:
+        elif event.key == pygame.K_DOWN:
             self.down.toggle(pressed)
-        elif event.key is pygame.K_RIGHT:
+        elif event.key == pygame.K_RIGHT:
             self.right.toggle(pressed)
-        elif event.key is pygame.K_LEFT:
+        elif event.key == pygame.K_LEFT:
             self.left.toggle(pressed)
 
-        elif event.key is pygame.K_w:
+        elif event.key == pygame.K_w:
             self.w.toggle(pressed)
-        elif event.key is pygame.K_s:
+        elif event.key == pygame.K_s:
             self.s.toggle(pressed)
-        elif event.key is pygame.K_d:
+        elif event.key == pygame.K_d:
             self.d.toggle(pressed)
-        elif event.key is pygame.K_a:
+        elif event.key == pygame.K_a:
             self.a.toggle(pressed)
 
 

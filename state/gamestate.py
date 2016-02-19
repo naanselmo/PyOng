@@ -4,6 +4,10 @@ from abc import ABCMeta, abstractmethod
 class GameState(object):
     __metaclass__ = ABCMeta
 
+    def __init__(self, game):
+        self.input = game.input
+        self.state_manager = game.state_manager
+
     @abstractmethod
     def show(self):
         pass
@@ -23,9 +27,7 @@ class GameState(object):
 
 class GameStateManager:
     def __init__(self):
-        pass
-
-    game_state = None
+        self.game_state = None
 
     def set_state(self, game_state):
         if self.game_state is not None:
