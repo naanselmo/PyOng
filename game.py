@@ -3,7 +3,7 @@ import pygame
 from config import *
 from pygame.time import Clock
 from state.gamestate import GameStateManager
-from state.states import PlayState
+from state.playstate import PlayState
 from input_handler import InputHandler
 
 
@@ -38,8 +38,9 @@ class Game:
         self.screen = pygame.display.set_mode((GAME_WIDTH * GAME_SCALE, GAME_HEIGHT * GAME_SCALE), pygame.DOUBLEBUF)
         # Set canvas size
         self.canvas = pygame.Surface((GAME_WIDTH, GAME_HEIGHT)).convert()
-
-        # Change to playstate
+        # Init the Input handler
+        self.input.init()
+        # Change to play state
         self.state_manager.set_state(PlayState(self))
 
     def loop(self):

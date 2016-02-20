@@ -16,6 +16,9 @@ class InputHandler:
         self.keys = [self.up, self.down, self.right, self.left,
                      self.w, self.s, self.d, self.a]
 
+    def init(self):
+        pass
+
     def update(self):
         for key in self.keys:
             key.update()
@@ -25,7 +28,7 @@ class InputHandler:
             # Catch main events
             self.quit = event.type == pygame.QUIT
 
-            # Catch keyboard event
+            # Catch keyboard events
             pressed = None
             if event.type == pygame.KEYDOWN:
                 pressed = True
