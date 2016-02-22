@@ -1,9 +1,8 @@
 import pygame
 import resources
 
-from state.game_state import GameState
 from constants import *
-from state.play_state import PlayState
+from state.game_state import GameState
 
 
 class MenuState(GameState):
@@ -24,7 +23,7 @@ class MenuState(GameState):
         self.hiscore_surface = None
         self.hiscore_label_surface = None
         self.title_surface = None
-        self.option_surfaces = None
+        self.options_surfaces = []
         self.rights_surface = None
 
     def show(self):
@@ -43,7 +42,7 @@ class MenuState(GameState):
 
         # Make options
         font_renderer = pygame.font.Font(font, 15)
-        self.option_surfaces = [font_renderer.render(option, 1, NOT_SO_BLACK) for option in self.options]
+        self.options_surfaces = [font_renderer.render(option, 1, NOT_SO_BLACK) for option in self.options]
 
     def update(self, delta):
         if self.input.down.clicked:
@@ -69,8 +68,8 @@ class MenuState(GameState):
         ))
 
         # Render the options
-        for i in range(len(self.option_surfaces)):
-            option_surface = self.option_surfaces[i]
+        for i in range(len(self.options_surfaces)):
+            option_surface = self.options_surfaces[i]
             surface_x = GAME_WIDTH / 2 - option_surface.get_width() / 2
             surface_y = i * option_surface.get_height() * 1.8 + GAME_HEIGHT / 4 * 2.2
             canvas.blit(option_surface, (surface_x, surface_y))
@@ -79,6 +78,7 @@ class MenuState(GameState):
                 points = self.arrow_points(surface_x - 20, surface_y + 2, 10, 10)
                 pygame.draw.polygon(canvas, NOT_SO_BLACK, points)
 
+        # Draw rights
         canvas.blit(self.rights_surface, (
             GAME_WIDTH / 2 - self.rights_surface.get_width() / 2,
             GAME_HEIGHT - self.rights_surface.get_height() - 15
@@ -92,7 +92,11 @@ class MenuState(GameState):
         if option == MenuState.EXIT_OPTION:
             self.game.stop()
         elif option == MenuState.PLAY_OPTION:
+            from state.play_state import PlayState
             self.state_manager.set_state(PlayState(self.game))
+        elif option == MenuState.HISCORES_OPTION:
+            from state.hiscores_state import HiscoresState
+            self.state_manager.set_state(HiscoresState(self.game))
 
     def dispose(self):
         pass
