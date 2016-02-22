@@ -6,6 +6,8 @@ from state.game_state import GameState
 
 
 class HiscoresState(GameState):
+    LISTEN_KEYS = (pygame.K_ESCAPE,)
+
     def __init__(self, game):
         super(HiscoresState, self).__init__(game)
         # Model of the hiscores
@@ -38,7 +40,7 @@ class HiscoresState(GameState):
             )
 
     def update(self, delta):
-        if self.input.escape.clicked:
+        if self.input.key_clicked(pygame.K_ESCAPE):
             from menu_state import MenuState
             self.state_manager.set_state(MenuState(self.game))
 

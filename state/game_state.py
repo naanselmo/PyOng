@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 class GameState(object):
     __metaclass__ = ABCMeta
+    LISTEN_KEYS = ()
 
     def __init__(self, game):
         self.input = game.input
@@ -26,6 +27,13 @@ class GameState(object):
     def dispose(self):
         pass
 
+    def add_listeners(self):
+        for key in self.LISTEN_KEYS:
+            self.input.add_listener(key)
+
+    def remove_listeners(self):
+        for key in self.LISTEN_KEYS:
+            self.input.remove_listener(key)
 
 class GameStateManager:
     def __init__(self):
@@ -33,10 +41,12 @@ class GameStateManager:
 
     def set_state(self, game_state):
         if self.game_state is not None:
+            self.game_state.remove_listeners()
             self.game_state.dispose()
         self.game_state = game_state
         if self.game_state is not None:
             self.game_state.show()
+            self.game_state.add_listeners()
 
     def render(self, canvas):
         if self.game_state is not None:

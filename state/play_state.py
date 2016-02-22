@@ -5,6 +5,8 @@ from game_state import GameState
 
 
 class PlayState(GameState):
+    LISTEN_KEYS = (pygame.K_UP,)
+
     def __init__(self, game):
         super(PlayState, self).__init__(game)
         self.y = 10
@@ -16,7 +18,7 @@ class PlayState(GameState):
         self.text = font_renderer.render('Hello There', 1, NOT_SO_BLACK)
 
     def update(self, delta):
-        if self.input.up.clicked:
+        if self.input.key_clicked(pygame.K_UP):
             print "Up clicked!"
             self.state_manager.set_state(None)
         if self.y + self.text.get_rect().height >= GAME_HEIGHT or self.y < 0:

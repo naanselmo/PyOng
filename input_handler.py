@@ -4,64 +4,45 @@ import pygame
 class InputHandler:
     def __init__(self):
         self.quit = False
-        self.escape = Key()
-        self.enter = Key()
-        self.up = Key()
-        self.down = Key()
-        self.right = Key()
-        self.left = Key()
-        self.w = Key()
-        self.s = Key()
-        self.d = Key()
-        self.a = Key()
-        self.keys = [self.escape, self.enter, self.up, self.down, self.right,
-                     self.left, self.w, self.s, self.d, self.a]
+        self.keys = {}
 
     def init(self):
         pass
 
     def update(self):
         for key in self.keys:
-            key.update()
+            self.keys[key].update()
 
     def catch_events(self):
         for event in pygame.event.get():
             # Catch main events
-            self.quit = event.type == pygame.QUIT
+            self.quit = (event.type == pygame.QUIT)
 
-            # Catch keyboard events
-            pressed = None
+            # Catch keyboard event
             if event.type == pygame.KEYDOWN:
-                pressed = True
-            if event.type == pygame.KEYUP:
-                pressed = False
-            if pressed is not None:
-                self.toggle(event, pressed)
+                self.toggle(event, True)
+
+            elif event.type == pygame.KEYUP:
+                self.toggle(event, False)
 
     def toggle(self, event, pressed):
-        if event.key == pygame.K_ESCAPE:
-            self.escape.toggle(pressed)
-        if event.key == pygame.K_RETURN:
-            self.enter.toggle(pressed)
+        key = self.keys.get(event.key)
+        if key is not None:
+            key.toggle(pressed)
 
-        elif event.key == pygame.K_UP:
-            self.up.toggle(pressed)
-        elif event.key == pygame.K_DOWN:
-            self.down.toggle(pressed)
-        elif event.key == pygame.K_RIGHT:
-            self.right.toggle(pressed)
-        elif event.key == pygame.K_LEFT:
-            self.left.toggle(pressed)
+    def add_listener(self, key):
+        if key not in self.keys:
+            self.keys[key] = Key()
 
-        elif event.key == pygame.K_w:
-            self.w.toggle(pressed)
-        elif event.key == pygame.K_s:
-            self.s.toggle(pressed)
-        elif event.key == pygame.K_d:
-            self.d.toggle(pressed)
-        elif event.key == pygame.K_a:
-            self.a.toggle(pressed)
+    def remove_listener(self, key):
+        if key in self.keys:
+            del self.keys[key]
 
+    def key_down(self, key):
+        return self.keys[key].down
+
+    def key_clicked(self, key):
+        return self.keys[key].clicked
 
 class Key:
     def __init__(self):

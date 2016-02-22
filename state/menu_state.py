@@ -6,6 +6,7 @@ from state.game_state import GameState
 
 
 class MenuState(GameState):
+    LISTEN_KEYS = (pygame.K_DOWN, pygame.K_UP, pygame.K_RETURN)
     PLAY_OPTION = 0
     HISCORES_OPTION = 1
     EXIT_OPTION = 2
@@ -45,11 +46,11 @@ class MenuState(GameState):
         self.options_surfaces = [font_renderer.render(option, 1, NOT_SO_BLACK) for option in self.options]
 
     def update(self, delta):
-        if self.input.down.clicked:
+        if self.input.key_clicked(pygame.K_DOWN):
             self.selected = (self.selected + 1) % len(self.options)
-        if self.input.up.clicked:
+        if self.input.key_clicked(pygame.K_UP):
             self.selected = (self.selected - 1) % len(self.options)
-        if self.input.enter.clicked:
+        if self.input.key_clicked(pygame.K_RETURN):
             self.on_click(self.selected)
 
     def render(self, canvas):
