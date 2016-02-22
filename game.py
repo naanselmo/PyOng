@@ -1,9 +1,12 @@
 import pygame
 
-from config import *
+import resources
+from constants import *
 from pygame.time import Clock
-from state.gamestate import GameStateManager
-from state.playstate import PlayState
+
+from hiscores import Hiscores
+from state.game_state import GameStateManager
+from state.menu_state import MenuState
 from input_handler import InputHandler
 
 
@@ -11,6 +14,7 @@ class Game:
     def __init__(self):
         self.input = InputHandler()
         self.state_manager = GameStateManager()
+        self.hiscores = Hiscores(resources.get_hiscores(HISCORES_FILENAME))
         self.clock = Clock()
         self.running = False
         self.screen = None
@@ -27,8 +31,6 @@ class Game:
     def stop(self):
         # Set running to false
         self.running = False
-        # Set state to None so it clears the current state and runs it's dispose method
-        self.state_manager.set_state(None)
 
     def init(self):
         # Init pygame
@@ -41,7 +43,7 @@ class Game:
         # Init the Input handler
         self.input.init()
         # Change to play state
-        self.state_manager.set_state(PlayState(self))
+        self.state_manager.set_state(MenuState(self))
 
     def loop(self):
         while self.running:

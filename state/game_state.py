@@ -7,6 +7,8 @@ class GameState(object):
     def __init__(self, game):
         self.input = game.input
         self.state_manager = game.state_manager
+        self.hiscores = game.hiscores
+        self.game = game
 
     @abstractmethod
     def show(self):

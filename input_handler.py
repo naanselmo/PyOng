@@ -5,6 +5,7 @@ class InputHandler:
     def __init__(self):
         self.quit = False
         self.escape = Key()
+        self.enter = Key()
         self.up = Key()
         self.down = Key()
         self.right = Key()
@@ -13,8 +14,8 @@ class InputHandler:
         self.s = Key()
         self.d = Key()
         self.a = Key()
-        self.keys = [self.up, self.down, self.right, self.left,
-                     self.w, self.s, self.d, self.a]
+        self.keys = [self.escape, self.enter, self.up, self.down, self.right,
+                     self.left, self.w, self.s, self.d, self.a]
 
     def init(self):
         pass
@@ -40,6 +41,8 @@ class InputHandler:
     def toggle(self, event, pressed):
         if event.key == pygame.K_ESCAPE:
             self.escape.toggle(pressed)
+        if event.key == pygame.K_RETURN:
+            self.enter.toggle(pressed)
 
         elif event.key == pygame.K_UP:
             self.up.toggle(pressed)

@@ -1,7 +1,7 @@
 import pygame
 
-from config import *
-from gamestate import GameState
+from constants import *
+from game_state import GameState
 
 
 class PlayState(GameState):
@@ -13,7 +13,7 @@ class PlayState(GameState):
 
     def show(self):
         font_renderer = pygame.font.Font(None, 36)
-        self.text = font_renderer.render('Hello There', 1, (10, 10, 10))
+        self.text = font_renderer.render('Hello There', 1, NOT_SO_BLACK)
 
     def update(self, delta):
         if self.input.up.clicked:
@@ -24,6 +24,7 @@ class PlayState(GameState):
         self.y += delta * self.vel_y
 
     def render(self, canvas):
+        canvas.fill(NOT_SO_WHITE)
         canvas.blit(self.text, (GAME_WIDTH / 2 - self.text.get_rect().width / 2, self.y))
 
     def dispose(self):
