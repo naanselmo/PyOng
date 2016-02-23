@@ -59,7 +59,7 @@ class Game:
             # Render game
             self.render()
 
-            # pygame.display.set_caption('FPS: '+str(self.Clock.get_fps()))
+            pygame.display.set_caption('FPS: '+str(self.clock.get_fps()))
 
         # Quit pygame
         pygame.quit()

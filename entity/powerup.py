@@ -2,12 +2,12 @@ import pygame
 import resources
 
 from entity import Entity
-from core.math import Vec2d
+from core.math import Vector2
 
 
 class PowerUp(Entity):
-    def __init__(self, coords=Vec2d(0, 0), bounds=Vec2d(0, 0), velocity=Vec2d(0, 0)):
-        super(PowerUp, self).__init__(coords, bounds, velocity)
+    def __init__(self, position, width, height):
+        super(PowerUp, self).__init__(position, width, height)
 
     def update(self, delta):
         pass

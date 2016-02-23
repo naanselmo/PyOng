@@ -15,6 +15,10 @@ class GameState(object):
     def show(self):
         pass
 
+    def add_listeners(self):
+        for key in self.listen_keys:
+            self.input.add_listener(key)
+
     @abstractmethod
     def render(self, canvas):
         pass
@@ -23,17 +27,13 @@ class GameState(object):
     def update(self, delta):
         pass
 
-    @abstractmethod
-    def dispose(self):
-        pass
-
-    def add_listeners(self):
-        for key in self.listen_keys:
-            self.input.add_listener(key)
-
     def remove_listeners(self):
         for key in self.listen_keys:
             self.input.remove_listener(key)
+
+    @abstractmethod
+    def dispose(self):
+        pass
 
 
 class GameStateManager:
