@@ -30,19 +30,22 @@ class InputHandler:
         if key is not None:
             key.toggle(pressed)
 
-    def add_listener(self, key):
-        if key not in self.keys:
-            self.keys[key] = Key()
+    def add_listener(self, key_code):
+        if key_code not in self.keys:
+            key = Key()
+            self.keys[key_code] = key
+            return key
 
-    def remove_listener(self, key):
-        if key in self.keys:
-            del self.keys[key]
+    def remove_listener(self, key_code):
+        if key_code in self.keys:
+            del self.keys[key_code]
 
-    def key_down(self, key):
-        return self.keys[key].down
+    def key_down(self, key_code):
+        return self.keys[key_code].down
 
-    def key_clicked(self, key):
-        return self.keys[key].clicked
+    def key_clicked(self, key_code):
+        return self.keys[key_code].clicked
+
 
 class Key:
     def __init__(self):

@@ -6,13 +6,15 @@ from state.game_state import GameState
 
 
 class MenuState(GameState):
-    LISTEN_KEYS = (pygame.K_DOWN, pygame.K_UP, pygame.K_RETURN)
     PLAY_OPTION = 0
     HISCORES_OPTION = 1
     EXIT_OPTION = 2
 
     def __init__(self, game):
         super(MenuState, self).__init__(game)
+        # Listen to up, down, and enter
+        self.listen_keys = (pygame.K_DOWN, pygame.K_UP, pygame.K_RETURN)
+
         # Model of the menu
         self.title = GAME_TITLE
         self.options = ['Play', 'Hi-scores', 'Exit']

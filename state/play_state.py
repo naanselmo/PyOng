@@ -5,10 +5,11 @@ from game_state import GameState
 
 
 class PlayState(GameState):
-    LISTEN_KEYS = (pygame.K_UP,)
-
     def __init__(self, game):
         super(PlayState, self).__init__(game)
+        # Listen to up only
+        self.listen_keys = (pygame.K_UP,)
+
         self.y = 10
         self.vel_y = 0.2
         self.text = None

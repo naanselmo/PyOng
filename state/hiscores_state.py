@@ -6,10 +6,11 @@ from state.game_state import GameState
 
 
 class HiscoresState(GameState):
-    LISTEN_KEYS = (pygame.K_ESCAPE,)
-
     def __init__(self, game):
         super(HiscoresState, self).__init__(game)
+        # Listen to escape only
+        self.listen_keys = (pygame.K_ESCAPE,)
+
         # Model of the hiscores
         self.scores = self.hiscores.get_scores(10)
 
@@ -47,7 +48,7 @@ class HiscoresState(GameState):
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
         # Draw title
-        canvas.blit(self.title_surface, (GAME_WIDTH / 2 - self.title_surface.get_width() / 2, 15))
+        canvas.blit(self.title_surface, (GAME_WIDTH / 2 - self.title_surface.get_width() / 2, 30))
 
         # Draw scores
         for i in range(len(self.scores_surfaces)):

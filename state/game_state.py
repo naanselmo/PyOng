@@ -3,13 +3,13 @@ from abc import ABCMeta, abstractmethod
 
 class GameState(object):
     __metaclass__ = ABCMeta
-    LISTEN_KEYS = ()
 
     def __init__(self, game):
+        self.game = game
         self.input = game.input
         self.state_manager = game.state_manager
         self.hiscores = game.hiscores
-        self.game = game
+        self.listen_keys = ()
 
     @abstractmethod
     def show(self):
@@ -28,12 +28,13 @@ class GameState(object):
         pass
 
     def add_listeners(self):
-        for key in self.LISTEN_KEYS:
+        for key in self.listen_keys:
             self.input.add_listener(key)
 
     def remove_listeners(self):
-        for key in self.LISTEN_KEYS:
+        for key in self.listen_keys:
             self.input.remove_listener(key)
+
 
 class GameStateManager:
     def __init__(self):
