@@ -1,6 +1,3 @@
-import operator
-
-
 class Hiscores:
     TOKEN = ';;'
 
@@ -17,10 +14,16 @@ class Hiscores:
         scores = []
         for line in hiscores_file.readlines():
             name, score = line.split(Hiscores.TOKEN)
-            scores.append((name, int(score)))
+            scores.append(Score(name, int(score)))
         hiscores_file.close()
-        scores.sort(key=operator.itemgetter(1), reverse=True)
+        scores.sort(key=lambda score: score.score, reverse=True)
         return scores[:limit]
 
     def get_hiscore(self):
         return self.get_scores(1)[0]
+
+
+class Score:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score

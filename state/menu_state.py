@@ -19,7 +19,7 @@ class MenuState(GameState):
         self.title = GAME_TITLE
         self.options = ['Play', 'Hi-scores', 'Exit']
         self.selected = 0
-        self.hiscore = str(self.game.hiscores.get_hiscore()[1])
+        self.hiscore = str(self.game.hiscores.get_hiscore().score)
         self.rights = u'\u00a9 Dezassete'
 
         # Surfaces

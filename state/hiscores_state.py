@@ -34,7 +34,7 @@ class HiscoresState(GameState):
         for score in self.scores:
             self.scores_surfaces.append(
                 font_renderer.render(
-                    score[0] + '.' * (max_width - self.score_width(score)) + str(score[1]),
+                    score.name + '.' * (max_width - self.score_width(score)) + str(score.score),
                     1,
                     NOT_SO_BLACK
                 )
@@ -58,7 +58,7 @@ class HiscoresState(GameState):
             canvas.blit(score_surface, (surface_x, surface_y))
 
     def score_width(self, score):
-        return len(score[0]) + len(str(score[1]))
+        return len(score.name) + len(str(score.score))
 
     def dispose(self):
         pass
