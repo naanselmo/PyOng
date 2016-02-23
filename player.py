@@ -1,9 +1,8 @@
 class Player(object):
     """docstring for Player"""
-    def __init__(self, game, controls, entity):
+    def __init__(self, input_handler, controls, entity):
         super(Player, self).__init__()
-        self.input = game.input
-        self.game = game
+        self.input = input_handler
         self.controls = controls
         self.entity = entity
 
@@ -17,13 +16,13 @@ class Player(object):
 
     def update(self):
         if self.input.key_clicked(self.controls['up']):
-            self.entity.move('up')
+            self.entity.move_up()
         elif self.input.key_clicked(self.controls['down']):
-            self.entity.move('down')
+            self.entity.move_down()
         elif self.input.key_clicked(self.controls['dash']):
             self.entity.dash()
 
         self.entity.update()
 
-    def render(self):
-        self.entity.render()
+    def render(self, canvas):
+        self.entity.render(canvas)

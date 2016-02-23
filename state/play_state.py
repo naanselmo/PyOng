@@ -3,32 +3,23 @@ import pygame
 from constants import *
 from game_state import GameState
 
+from player import Player
+from entity.pad import Pad
 
 class PlayState(GameState):
     def __init__(self, game):
         super(PlayState, self).__init__(game)
-        # Listen to up only
-        self.listen_keys = (pygame.K_UP,)
-
-        self.y = 10
-        self.vel_y = 0.2
-        self.text = None
+        self.player1 = Player(game.input, PLAYER1, Pad())
 
     def show(self):
-        font_renderer = pygame.font.Font(None, 36)
-        self.text = font_renderer.render('Hello There', 1, NOT_SO_BLACK)
+        pass
 
     def update(self, delta):
-        if self.input.key_clicked(pygame.K_UP):
-            print "Up clicked!"
-            self.state_manager.set_state(None)
-        if self.y + self.text.get_rect().height >= GAME_HEIGHT or self.y < 0:
-            self.vel_y *= -1
-        self.y += delta * self.vel_y
+        pass
 
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
-        canvas.blit(self.text, (GAME_WIDTH / 2 - self.text.get_rect().width / 2, self.y))
+        self.player1.render(canvas)
 
     def dispose(self):
         pass
