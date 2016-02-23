@@ -1,4 +1,3 @@
-import pygame
 import resources
 
 from constants import *
