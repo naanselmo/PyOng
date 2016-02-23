@@ -14,12 +14,20 @@ class PlayState(GameState):
     def show(self):
         pass
 
+    def add_listeners(self):
+        super(PlayState, self).add_listeners()
+        self.player1.add_listeners()
+
     def update(self, delta):
-        pass
+        self.player1.update(delta)
 
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
         self.player1.render(canvas)
+
+    def remove_listeners(self):
+        super(PlayState, self).remove_listeners()
+        self.player1.remove_listeners()
 
     def dispose(self):
         pass

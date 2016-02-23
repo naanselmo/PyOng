@@ -8,21 +8,21 @@ class Player(object):
 
     def add_listeners(self):
         for key in self.controls:
-            self.input.add_listener(key)
+            self.input.add_listener(self.controls[key])
 
     def remove_listeners(self):
         for key in self.controls:
-            self.input.add_listener(key)
+            self.input.remove_listener(self.controls[key])
 
-    def update(self):
-        if self.input.key_clicked(self.controls['up']):
-            self.entity.move_up()
-        elif self.input.key_clicked(self.controls['down']):
-            self.entity.move_down()
-        elif self.input.key_clicked(self.controls['dash']):
-            self.entity.dash()
+    def update(self, delta):
+        if self.input.key_down(self.controls['up']):
+            self.entity.move_up(delta)
+        elif self.input.key_down(self.controls['down']):
+            self.entity.move_down(delta)
+        elif self.input.key_down(self.controls['dash']):
+            self.entity.dash(delta)
 
-        self.entity.update()
+        self.entity.update(delta)
 
     def render(self, canvas):
         self.entity.render(canvas)
