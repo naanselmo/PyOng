@@ -1,11 +1,14 @@
-from pygame.time import Clock
+import pygame
+import threading
 
 import resources
 from constants import *
+from pygame.time import Clock
+
 from hiscores import Hiscores
-from input_handler import InputHandler
 from state.game_state import GameStateManager
 from state.menu_state import MenuState
+from input_handler import InputHandler
 
 
 class Game:
@@ -13,7 +16,10 @@ class Game:
         self.input = InputHandler()
         self.state_manager = GameStateManager()
         self.hiscores = Hiscores(resources.get_hiscores(HISCORES_FILENAME))
-        self.clock = Clock()
+        self.renderer = threading.Thread(target=self.render_loop, args=())
+        self.renderer.daemon = True
+        self.render_clock = Clock()
+        self.logic_clock = Clock()
         self.running = False
         self.screen = None
         self.canvas = None
@@ -23,8 +29,12 @@ class Game:
         self.running = True
         # Init the game
         self.init()
+
+        # Start up the rendering thread
+        self.renderer.start()
+
         # Start running the game loop
-        self.loop()
+        self.logic_loop()
 
     def stop(self):
         # Set running to false
@@ -35,7 +45,7 @@ class Game:
         pygame.init()
         pygame.display.set_caption(GAME_TITLE)
         # Set screen size
-        self.screen = pygame.display.set_mode((GAME_WIDTH * GAME_SCALE, GAME_HEIGHT * GAME_SCALE))
+        self.screen = pygame.display.set_mode((GAME_WIDTH * GAME_SCALE, GAME_HEIGHT * GAME_SCALE), pygame.DOUBLEBUF | pygame.HWSURFACE)
         # Set canvas size
         self.canvas = pygame.Surface((GAME_WIDTH, GAME_HEIGHT)).convert()
         # Init the Input handler
@@ -43,9 +53,18 @@ class Game:
         # Change to play state
         self.state_manager.set_state(MenuState(self))
 
-    def loop(self):
-        delta = 0
+    def render_loop(self):
+        while True:
+            # Let the clock do the math
+            delta = self.render_clock.tick(GAME_MAX_FPS)
+
+            # Render game
+            self.render()
+
+    def logic_loop(self):
         while self.running:
+            # Let the clock do the math
+            delta = self.logic_clock.tick(GAME_MAX_FPS * 2)
 
             # Catch events
             self.input.catch_events()
@@ -53,15 +72,9 @@ class Game:
             # Update game
             self.update(delta)
 
-            # Render game
-            self.render()
-
-            # Let the clock do the math
-            delta = self.clock.tick(GAME_MAX_FPS)
-
             # Print runtime into console if it exceeds threshold
-            if self.clock.get_rawtime() >= 10:
-                print self.clock.get_rawtime()
+            if self.logic_clock.get_rawtime() > 2:
+                print self.logic_clock.get_rawtime()
 
         # Quit pygame
         pygame.quit()

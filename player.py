@@ -17,8 +17,7 @@ class Player(object):
             self.pad.move_down(delta)
         elif self.input.key_down(self.controls['dash']):
             self.pad.dash(delta)
-        else:
-            self.pad.idle(delta)
+
         self.pad.update(delta)
 
     def render(self, canvas):
