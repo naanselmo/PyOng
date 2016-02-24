@@ -2,7 +2,7 @@ import pygame
 import resources
 
 from entity import Entity
-from core.math import Vector2
+from core.game_math import Vector2
 
 
 class PowerUp(Entity):

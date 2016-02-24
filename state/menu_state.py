@@ -94,11 +94,11 @@ class MenuState(GameState):
 
     def play_menu_on_click(self, option):
         if option == MenuState.ONE_PLAYER_OPTION:
-            from state.play_state import PlayState
-            self.state_manager.set_state(PlayState(self.game))
+            from state.singleplayer_state import SinglePlayerState
+            self.state_manager.set_state(SinglePlayerState(self.game))
         elif option == MenuState.TWO_PLAYERS_OPTION:
-            from state.play_state import PlayState
-            self.state_manager.set_state(PlayState(self.game))
+            from state.multiplayer_state import MultiPlayerState
+            self.state_manager.set_state(MultiPlayerState(self.game))
         elif option == MenuState.BACK_OPTION:
             self.change_menu_options(self.main_menu_options)
 

@@ -5,7 +5,7 @@ import resources
 
 from constants import *
 from entity import Entity
-from core.math import Vector2
+from core.game_math import Vector2
 
 
 class Pad(Entity):
