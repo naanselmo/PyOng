@@ -1,4 +1,3 @@
-import pygame
 import resources
 
 from constants import *
@@ -23,7 +22,7 @@ class HiscoresState(GameState):
 
         # Make title
         font_renderer = pygame.font.Font(font, 15)
-        self.title_surface = font_renderer.render('Hi-scores', 1, NOT_SO_BLACK)
+        self.title_surface = font_renderer.render('Hi-scores', True, NOT_SO_BLACK)
 
         # Make all scores
         # Get the score with highest width
@@ -35,7 +34,7 @@ class HiscoresState(GameState):
             self.scores_surfaces.append(
                 font_renderer.render(
                     score.name + '.' * (max_width - self.score_width(score)) + str(score.score),
-                    1,
+                    True,
                     NOT_SO_BLACK
                 )
             )

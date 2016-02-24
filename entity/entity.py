@@ -1,5 +1,3 @@
-import pygame
-
 from abc import ABCMeta, abstractmethod
 
 from pygame.rect import Rect

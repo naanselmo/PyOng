@@ -39,13 +39,13 @@ class MenuState(GameState):
 
         # Make Hi-score and rights
         font_renderer = pygame.font.Font(font, 12)
-        self.hiscore_label_surface = font_renderer.render('Hi-score', 1, NOT_SO_BLACK)
-        self.hiscore_surface = font_renderer.render(self.hiscore, 1, NOT_SO_BLACK)
-        self.rights_surface = font_renderer.render(self.rights, 1, NOT_SO_BLACK)
+        self.hiscore_label_surface = font_renderer.render('Hi-score', True, NOT_SO_BLACK)
+        self.hiscore_surface = font_renderer.render(self.hiscore, True, NOT_SO_BLACK)
+        self.rights_surface = font_renderer.render(self.rights, True, NOT_SO_BLACK)
 
         # Make title
         font_renderer = pygame.font.Font(font, 36)
-        self.title_surface = font_renderer.render(GAME_TITLE, 1, NOT_SO_BLACK)
+        self.title_surface = font_renderer.render(GAME_TITLE, False, NOT_SO_BLACK)
 
         # Make all options and change to the main menu
         self.play_menu_options.init(font, 15)
@@ -117,7 +117,7 @@ class MenuOptions:
 
     def init(self, font, font_size):
         font_renderer = pygame.font.Font(font, font_size)
-        self.menu_options_surfaces = [font_renderer.render(option, 1, NOT_SO_BLACK) for option in self.menu_options]
+        self.menu_options_surfaces = [font_renderer.render(option, True, NOT_SO_BLACK) for option in self.menu_options]
 
     def update(self, input_handler):
         if input_handler.key_clicked(pygame.K_DOWN):

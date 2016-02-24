@@ -1,8 +1,4 @@
-import pygame
-import resources
-
 from entity import Entity
-from core.math import Vector2
 
 
 class PowerUp(Entity):
