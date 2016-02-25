@@ -15,7 +15,11 @@ class Player(object):
             self.pad.move_up(delta)
         elif self.input.key_down(self.controls['down']):
             self.pad.move_down(delta)
-        elif self.input.key_down(self.controls['dash']):
+        else:
+            self.pad.stop_movement(delta)
+
+        if self.input.key_down(self.controls['dash']):
+            self.pad.stop_movement(delta)
             self.pad.dash(delta)
 
         self.pad.update(delta)
