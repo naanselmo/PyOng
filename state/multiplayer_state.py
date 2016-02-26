@@ -4,6 +4,7 @@ import math
 from constants import *
 from core.game_math import Vector2
 from entity.ball import Ball
+from entity.virtual_ball import VirtualBall
 from game_state import GameState
 
 from player import Player
@@ -35,8 +36,8 @@ class MultiPlayerState(GameState):
 
         # Check ball
         self.check_upper_bottom_boundaries(self.ball)
-        self.check_ball_collision(self.ball, self.player1.pad)
-        self.check_ball_collision(self.ball, self.player2.pad)
+        self.check_ball_collision(delta, self.ball, self.player1.pad)
+        self.check_ball_collision(delta, self.ball, self.player2.pad)
 
         # Check scoring
         self.check_left_boundary(self.ball)
@@ -63,17 +64,22 @@ class MultiPlayerState(GameState):
             entity.position.x -= (entity.position.x + entity.width - GAME_WIDTH)*2
             entity.velocity.x *= -1
 
-    def check_ball_collision(self, ball, pad):
-        collision = ball.get_bounds().colliderect(pad.get_bounds())
-
+    def check_ball_collision(self, delta, ball, pad):
         # Maybe a collision should've happened but wasn't detected
-        if (not collision):
-            i = 0
-            while not(collision) and i < COLLISION_INTERPOLATION:
-                i += 1
+        i = 0
+        collision = False
+        virtualball = VirtualBall(ball.position-delta*ball.velocity, width=ball.width, height=ball.height, velocity=(ball.velocity))
+        while not(collision) and i < COLLISION_INTERPOLATION:
+            virtualball.update(delta/COLLISION_INTERPOLATION)
+            collision = virtualball.get_bounds().colliderect(pad.get_bounds())
+            i += 1
 
+        # We were right!
         if collision:
-            self.calculate_collision(pad, ball)
+            self.calculate_collision(pad, virtualball)
+            ball.bounds = virtualball.bounds
+            ball.position = virtualball.position
+            ball.velocity = virtualball.velocity
 
             if ball.velocity.x < BALL_SPEED_LIMIT:
                 ball.velocity.x *= BALL_SPEED_MULTIPLIER

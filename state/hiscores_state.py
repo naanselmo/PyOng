@@ -1,7 +1,10 @@
 import pygame
+from pygame.mixer import Sound
+
 import resources
 
 from constants import *
+from core.menu import MenuOptions
 from state.game_state import GameState
 
 
@@ -9,21 +12,25 @@ class HiscoresState(GameState):
     def __init__(self, game):
         super(HiscoresState, self).__init__(game)
         # Listen to escape only
-        self.listen_keys = (pygame.K_ESCAPE,)
+        self.listen_keys = (pygame.K_ESCAPE, pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN)
 
         # Model of the hiscores
         self.scores = self.hiscores.get_scores(10)
+        self.back_options = MenuOptions(['Back'], self.on_click, self.on_change, True, False)
 
         # Surfaces
         self.title_surface = None
         self.scores_surfaces = []
+
+        # Sounds
+        self.select_sound = None
 
     def show(self):
         font = resources.get_font('prstartcustom.otf')
 
         # Make title
         font_renderer = pygame.font.Font(font, 15)
-        self.title_surface = font_renderer.render('Hi-scores', 1, NOT_SO_BLACK)
+        self.title_surface = font_renderer.render('Hi-scores', True, NOT_SO_BLACK)
 
         # Make all scores
         # Get the score with highest width
@@ -35,15 +42,19 @@ class HiscoresState(GameState):
             self.scores_surfaces.append(
                 font_renderer.render(
                     score.name + '.' * (max_width - self.score_width(score)) + str(score.score),
-                    1,
+                    True,
                     NOT_SO_BLACK
                 )
             )
 
+        # Make the back option
+        self.back_options.init(font, 15, True, NOT_SO_BLACK)
+
+        # Load all sounds
+        self.select_sound = Sound(resources.get_sound('menu_select.wav'))
+
     def update(self, delta):
-        if self.input.key_clicked(pygame.K_ESCAPE):
-            from menu_state import MenuState
-            self.state_manager.set_state(MenuState(self.game))
+        self.back_options.update(self.input)
 
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
@@ -57,8 +68,19 @@ class HiscoresState(GameState):
             surface_y = i * score_surface.get_height() * 1.8 + (self.title_surface.get_height() + 15) * 2.5
             canvas.blit(score_surface, (surface_x, surface_y))
 
+        # Draw back option
+        self.back_options.render(canvas, GAME_WIDTH/6*5, GAME_HEIGHT-20)
+
     def score_width(self, score):
         return len(score.name) + len(str(score.score))
+
+    def on_click(self, option):
+        from menu_state import MenuState
+        self.state_manager.set_state(MenuState(self.game))
+        self.select_sound.play()
+
+    def on_change(self, old_option, new_option):
+        self.select_sound.play()
 
     def dispose(self):
         pass

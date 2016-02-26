@@ -1,6 +1,9 @@
+from pygame.mixer import Sound
+
 import resources
 
 from constants import *
+from core.menu import MenuOptions
 from state.game_state import GameState
 
 
@@ -13,10 +16,16 @@ class MenuState(GameState):
     TWO_PLAYERS_OPTION = 1
     BACK_OPTION = 2
 
+    KONAMI_CODE = (pygame.K_UP, pygame.K_UP, pygame.K_DOWN, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT,
+                   pygame.K_LEFT, pygame.K_RIGHT, pygame.K_b, pygame.K_a)
+
     def __init__(self, game):
         super(MenuState, self).__init__(game)
-        # Listen to up, down, and enter
-        self.listen_keys = (pygame.K_DOWN, pygame.K_UP, pygame.K_RETURN)
+        # Listen to up, down, and enter and all of the Konami code ones
+        self.set_listen_keys((pygame.K_DOWN, pygame.K_UP, pygame.K_RETURN) + MenuState.KONAMI_CODE)
+
+        # Konami code step
+        self.konami_code_step = 0
 
         # Model of the menu
         self.title = GAME_TITLE
@@ -24,8 +33,8 @@ class MenuState(GameState):
         self.hiscore = str(self.game.hiscores.get_hiscore().score)
         self.rights = u'\u00a9 Dezassete'
         self.current_menu_options = None
-        self.main_menu_options = MenuOptions(['Play', 'Hi-scores', 'Exit'], self.main_menu_on_click)
-        self.play_menu_options = MenuOptions(['1 Player', '2 Players', 'Back'], self.play_menu_on_click)
+        self.main_menu_options = MenuOptions(['Play', 'Hi-scores', 'Exit'], self.main_menu_on_click, self.on_change)
+        self.play_menu_options = MenuOptions(['1 Player', '2 Players', 'Back'], self.play_menu_on_click, self.on_change)
 
         # Surfaces
         self.hiscore_surface = None
@@ -33,26 +42,52 @@ class MenuState(GameState):
         self.title_surface = None
         self.rights_surface = None
 
+        # Sounds
+        self.select_sound = None
+
+    def set_listen_keys(self, listen_keys_tuple):
+        listen_keys_list = []
+        for key in listen_keys_tuple:
+            if key not in listen_keys_list:
+                listen_keys_list.append(key)
+        self.listen_keys = tuple(listen_keys_list)
+
     def show(self):
         # Get font name
         font = resources.get_font('prstartcustom.otf')
 
         # Make Hi-score and rights
         font_renderer = pygame.font.Font(font, 12)
-        self.hiscore_label_surface = font_renderer.render('Hi-score', 1, NOT_SO_BLACK)
-        self.hiscore_surface = font_renderer.render(self.hiscore, 1, NOT_SO_BLACK)
-        self.rights_surface = font_renderer.render(self.rights, 1, NOT_SO_BLACK)
+        self.hiscore_label_surface = font_renderer.render('Hi-score', True, NOT_SO_BLACK)
+        self.hiscore_surface = font_renderer.render(self.hiscore, True, NOT_SO_BLACK)
+        self.rights_surface = font_renderer.render(self.rights, True, NOT_SO_BLACK)
 
         # Make title
         font_renderer = pygame.font.Font(font, 36)
-        self.title_surface = font_renderer.render(GAME_TITLE, 1, NOT_SO_BLACK)
+        self.title_surface = font_renderer.render(GAME_TITLE, False, NOT_SO_BLACK)
 
         # Make all options and change to the main menu
-        self.play_menu_options.init(font, 15)
-        self.main_menu_options.init(font, 15)
+        self.play_menu_options.init(font, 15, True, NOT_SO_BLACK)
+        self.main_menu_options.init(font, 15, True, NOT_SO_BLACK)
         self.change_menu_options(self.main_menu_options)
 
+        # Load all sounds
+        self.select_sound = Sound(resources.get_sound('menu_select.wav'))
+
     def update(self, delta):
+        # Konami code listener
+        for key in self.listen_keys:
+            if self.input.key_clicked(key):
+                if MenuState.KONAMI_CODE[self.konami_code_step] == key:
+                    self.konami_code_step += 1
+                    if self.konami_code_step >= len(MenuState.KONAMI_CODE):
+                        from state.god_state import GodState
+                        self.state_manager.push_overlay(GodState(self.game))
+                        self.konami_code_step = 0
+                        return
+                else:
+                    self.konami_code_step = 0
+
         self.current_menu_options.update(self.input)
 
     def render(self, canvas):
@@ -70,8 +105,8 @@ class MenuState(GameState):
             GAME_HEIGHT / 4 * 1.4 - self.title_surface.get_height() / 2
         ))
 
-        # Render the current options
-        self.current_menu_options.render(canvas)
+        # Render the current options in the middle of the screen
+        self.current_menu_options.render(canvas, GAME_WIDTH / 2, GAME_HEIGHT / 4 * 2.2)
 
         # Draw rights
         canvas.blit(self.rights_surface, (
@@ -84,6 +119,7 @@ class MenuState(GameState):
         self.current_menu_options.reset()
 
     def main_menu_on_click(self, option):
+        self.select_sound.play()
         if option == MenuState.EXIT_OPTION:
             self.game.stop()
         elif option == MenuState.PLAY_OPTION:
@@ -93,6 +129,7 @@ class MenuState(GameState):
             self.state_manager.set_state(HiscoresState(self.game))
 
     def play_menu_on_click(self, option):
+        self.select_sound.play()
         if option == MenuState.ONE_PLAYER_OPTION:
             from state.singleplayer_state import SinglePlayerState
             self.state_manager.set_state(SinglePlayerState(self.game))
@@ -102,44 +139,8 @@ class MenuState(GameState):
         elif option == MenuState.BACK_OPTION:
             self.change_menu_options(self.main_menu_options)
 
+    def on_change(self, old_option, new_option):
+        self.select_sound.play()
+
     def dispose(self):
         pass
-
-
-class MenuOptions:
-    def __init__(self, options, on_click):
-        self.menu_options = options
-        self.on_click = on_click
-        self.selected = 0
-        self.menu_options_surfaces = []
-
-        self.reset()
-
-    def init(self, font, font_size):
-        font_renderer = pygame.font.Font(font, font_size)
-        self.menu_options_surfaces = [font_renderer.render(option, 1, NOT_SO_BLACK) for option in self.menu_options]
-
-    def update(self, input_handler):
-        if input_handler.key_clicked(pygame.K_DOWN):
-            self.selected = (self.selected + 1) % len(self.menu_options)
-        if input_handler.key_clicked(pygame.K_UP):
-            self.selected = (self.selected - 1) % len(self.menu_options)
-        if input_handler.key_clicked(pygame.K_RETURN):
-            self.on_click(self.selected)
-
-    def render(self, canvas):
-        for i in range(len(self.menu_options_surfaces)):
-            option_surface = self.menu_options_surfaces[i]
-            surface_x = GAME_WIDTH / 2 - option_surface.get_width() / 2
-            surface_y = i * option_surface.get_height() * 1.8 + GAME_HEIGHT / 4 * 2.2
-            canvas.blit(option_surface, (surface_x, surface_y))
-            # Draw arrow
-            if self.selected == i:
-                points = self.arrow_points(surface_x - 20, surface_y + 2, 10, 10)
-                pygame.draw.polygon(canvas, NOT_SO_BLACK, points)
-
-    def arrow_points(self, x, y, width, height):
-        return (x, y), (x, y + height), (x + width, y + (height / 2))
-
-    def reset(self):
-        self.selected = 0

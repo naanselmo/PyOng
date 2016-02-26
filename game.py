@@ -39,6 +39,8 @@ class Game:
         self.running = False
 
     def init(self):
+        # Init mixer for sound specifications
+        pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=512)
         # Init pygame
         pygame.init()
         pygame.display.set_caption(GAME_TITLE)
@@ -63,7 +65,7 @@ class Game:
     def logic_loop(self):
         while self.running:
             # Let the clock do the math
-            delta = self.logic_clock.tick()
+            delta = self.logic_clock.tick(1000)
             print self.logic_clock.get_rawtime()
 
             # Catch events
