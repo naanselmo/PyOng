@@ -64,7 +64,15 @@ class MultiPlayerState(GameState):
             entity.velocity.x *= -1
 
     def check_ball_collision(self, ball, pad):
-        if ball.get_bounds().colliderect(pad.get_bounds()):
+        collision = ball.get_bounds().colliderect(pad.get_bounds())
+
+        # Maybe a collision should've happened but wasn't detected
+        if (not collision):
+            i = 0
+            while not(collision) and i < COLLISION_INTERPOLATION:
+                i += 1
+
+        if collision:
             self.calculate_collision(pad, ball)
 
             if ball.velocity.x < BALL_SPEED_LIMIT:
@@ -82,13 +90,13 @@ class MultiPlayerState(GameState):
         if collision_angle < 0:
             collision_angle += 2*math.pi
 
-        if collision_angle < 2*entity_angle:
+        if collision_angle < 2*entity_angle or (point.velocity.x < 0 and collision_angle < math.pi+2*entity_angle):
             point.position.x = entity.position.x + entity.width
             point.velocity.x *= -1
         elif collision_angle < math.pi:
             point.position.y = entity.position.y - point.height
             point.velocity.y *= -1
-        elif collision_angle < math.pi+2*entity_angle:
+        elif collision_angle < math.pi+2*entity_angle or (point.velocity.x > 0 and collision_angle < 2*entity_angle):
             point.position.x = entity.position.x - point.width
             point.velocity.x *= -1
         elif collision_angle < 2*math.pi:

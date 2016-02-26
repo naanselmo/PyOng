@@ -8,14 +8,18 @@ from hiscores import Hiscores
 from state.game_state import GameStateManager
 from state.menu_state import MenuState
 from input_handler import InputHandler
-
+from threading import Thread
 
 class Game:
     def __init__(self):
         self.input = InputHandler()
         self.state_manager = GameStateManager()
         self.hiscores = Hiscores(resources.get_hiscores(HISCORES_FILENAME))
-        self.clock = Clock()
+        self.logic_clock = Clock()
+        self.render_clock = Clock()
+        self.renderer = Thread(target=self.render_loop, args=())
+        self.renderer.daemon = True
+        self.rendering = True
         self.running = False
         self.screen = None
         self.canvas = None
@@ -25,8 +29,10 @@ class Game:
         self.running = True
         # Init the game
         self.init()
+        # Start the renderer
+        self.renderer.start()
         # Start running the game loop
-        self.loop()
+        self.logic_loop()
 
     def stop(self):
         # Set running to false
@@ -45,21 +51,26 @@ class Game:
         # Change to play state
         self.state_manager.set_state(MenuState(self))
 
-    def loop(self):
+    def render_loop(self):
+        while self.running:
+            # Tick the clock
+            self.render_clock.tick(GAME_MAX_FPS)
+
+            # Render game
+            if self.rendering:
+                self.render()
+
+    def logic_loop(self):
         while self.running:
             # Let the clock do the math
-            delta = self.clock.tick(GAME_MAX_FPS)
+            delta = self.logic_clock.tick()
+            print self.logic_clock.get_rawtime()
 
             # Catch events
             self.input.catch_events()
 
             # Update game
             self.update(delta)
-
-            # Render game
-            self.render()
-
-            pygame.display.set_caption('FPS: '+str(self.clock.get_fps()))
 
         # Quit pygame
         pygame.quit()

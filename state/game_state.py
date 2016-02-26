@@ -41,6 +41,7 @@ class GameStateManager:
         self.game_state = None
 
     def set_state(self, game_state):
+        game_state.game.rendering = False
         if self.game_state is not None:
             self.game_state.remove_listeners()
             self.game_state.dispose()
@@ -48,6 +49,7 @@ class GameStateManager:
         if self.game_state is not None:
             self.game_state.show()
             self.game_state.add_listeners()
+        game_state.game.rendering = True
 
     def render(self, canvas):
         if self.game_state is not None:
