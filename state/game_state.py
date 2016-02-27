@@ -42,14 +42,14 @@ class GameStateManager:
         self.overlay_states = []
 
     def set_state(self, game_state):
-        game_state.game.rendering = False
-        if self.game_state is not None:
-            # Clear all overlays
-            while len(self.overlay_states):
-                self.pop_overlay()
-            # Remove listeners and run dispose
-            self.game_state.remove_listeners()
-            self.game_state.dispose()
+        with game_state.game.rendering:
+            if self.game_state is not None:
+                # Clear all overlays
+                while len(self.overlay_states):
+                    self.pop_overlay()
+                # Remove listeners and run dispose
+                self.game_state.remove_listeners()
+                self.game_state.dispose()
 
         # Set game state
         self.game_state = game_state
@@ -58,7 +58,6 @@ class GameStateManager:
             # Show the new game state and add its listeners
             self.game_state.show()
             self.game_state.add_listeners()
-        game_state.game.rendering = True
 
     def push_overlay(self, overlay_state):
         # If pushed None send an exception

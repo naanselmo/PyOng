@@ -8,7 +8,7 @@ from hiscores import Hiscores
 from state.game_state import GameStateManager
 from state.menu_state import MenuState
 from input_handler import InputHandler
-from threading import Thread
+from threading import Thread, Lock
 
 class Game:
     def __init__(self):
@@ -19,7 +19,7 @@ class Game:
         self.render_clock = Clock()
         self.renderer = Thread(target=self.render_loop, args=())
         self.renderer.daemon = True
-        self.rendering = True
+        self.rendering = Lock()
         self.running = False
         self.screen = None
         self.canvas = None
@@ -59,7 +59,7 @@ class Game:
             self.render_clock.tick(GAME_MAX_FPS)
 
             # Render game
-            if self.rendering:
+            with self.rendering:
                 self.render()
 
     def logic_loop(self):
