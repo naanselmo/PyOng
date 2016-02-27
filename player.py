@@ -1,10 +1,12 @@
 class Player(object):
     """docstring for Player"""
-    def __init__(self, input_handler, controls, pad):
+    def __init__(self, input_handler, controls, pad, lives):
         super(Player, self).__init__()
         self.input = input_handler
         self.controls = controls
         self.pad = pad
+        self.score = 0
+        self.lives = lives
 
     def add_listeners(self):
         for key in self.controls:

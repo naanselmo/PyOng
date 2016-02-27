@@ -13,9 +13,10 @@ from entity.pad import Pad
 class MultiPlayerState(GameState):
     def __init__(self, game):
         super(MultiPlayerState, self).__init__(game)
-        self.player1 = Player(game.input, PLAYER1, Pad(Vector2(GAME_WIDTH - PAD_DISTANCE - PAD_WIDTH, GAME_HEIGHT/2 - PAD_HEIGHT/2)))
-        self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2)))
-        self.ball = Ball()
+        self.player1 = Player(game.input, PLAYER1, Pad(Vector2(GAME_WIDTH - PAD_DISTANCE - PAD_WIDTH, GAME_HEIGHT/2 - PAD_HEIGHT/2)), MULTIPLAYER_LIVES)
+        self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2)), MULTIPLAYER_LIVES)
+        self.balls = [Ball()]
+        self.winner = None
 
     def show(self):
         pass
@@ -26,43 +27,65 @@ class MultiPlayerState(GameState):
         self.player2.add_listeners()
 
     def update(self, delta):
-        self.player1.update(delta)
-        self.player2.update(delta)
-        self.ball.update(delta)
-
         # Check pads
+        self.player1.update(delta)
         self.check_upper_bottom_boundaries(self.player1.pad)
+        self.player2.update(delta)
         self.check_upper_bottom_boundaries(self.player2.pad)
 
-        # Check ball
-        self.check_upper_bottom_boundaries(self.ball)
-        self.check_ball_collision(delta, self.ball, self.player1.pad)
-        self.check_ball_collision(delta, self.ball, self.player2.pad)
+        # Check balls
+        for b in self.balls:
+            b.update(delta)
 
-        # Check scoring
-        self.check_left_boundary(self.ball)
-        self.check_right_boundary(self.ball)
+            # Check each ball
+            if self.check_upper_bottom_boundaries(b) or \
+            self.check_ball_collision(delta, b, self.player1.pad) or \
+            self.check_ball_collision(delta, b, self.player2.pad):
+                pass
+
+            # Check scoring
+            if self.check_left_boundary(b, self.player1, self.player2) or \
+            self.check_right_boundary(b, self.player1, self.player2):
+                with self.game.rendering:
+                    print "DELETING BALLS!"
+                    self.balls = [Ball()]
+                    self.balls[0].update_bounds()
+                    break
 
     def check_upper_bottom_boundaries(self, entity):
         # Check top boundary
         if entity.position.y < 0:
             entity.position.y *= -1
             entity.velocity.y *= -1
+            return True
 
         # Check bottom boundary
         elif entity.position.y + entity.height > GAME_HEIGHT:
             entity.position.y -= (entity.position.y + entity.height - GAME_HEIGHT)*2
             entity.velocity.y *= -1
+            return True
 
-    def check_left_boundary(self, entity):
-        if entity.position.x <= 0:
-            entity.position.x *= -1
-            entity.velocity.x *= -1
+        return False
 
-    def check_right_boundary(self, entity):
-        if entity.position.x + entity.width >= GAME_WIDTH:
-            entity.position.x -= (entity.position.x + entity.width - GAME_WIDTH)*2
-            entity.velocity.x *= -1
+    def check_right_boundary(self, ball, player1, player2):
+        if ball.position.x + ball.width >= GAME_WIDTH:
+            player1.lives -= 1
+            print "Player 1 lost a life"
+            if player1.lives <= 0:
+                self.winner = player2
+                print "Player 2 won"
+            return True
+        return False
+
+    def check_left_boundary(self, ball, player1, player2):
+        if ball.position.x <= 0:
+            player2.lives -= 1
+            print "Player 2 lost a life"
+            if player2.lives <= 0:
+                self.winner = player1
+                print "Player 1 won"
+            return True
+        return False
 
     def check_ball_collision(self, delta, ball, pad):
         # Maybe a collision should've happened but wasn't detected
@@ -77,9 +100,10 @@ class MultiPlayerState(GameState):
         # We were right!
         if collision:
             self.calculate_collision(pad, virtualball)
-            ball.bounds = virtualball.bounds
             ball.position = virtualball.position
             ball.velocity = virtualball.velocity
+            ball.damage = virtualball.damage
+            ball.update_bounds()
 
             if ball.velocity.x < BALL_SPEED_LIMIT:
                 ball.velocity.x *= BALL_SPEED_MULTIPLIER
@@ -88,6 +112,8 @@ class MultiPlayerState(GameState):
 
             ball.velocity.y += BALL_SPEED_TRANSFER * pad.velocity.y
             ball.velocity.x += BALL_SPEED_TRANSFER_DASH * pad.velocity.x
+            return True
+        return False
 
     def calculate_collision(self, entity, point):
         entity_angle = math.atan2(entity.height/2, entity.width/2)
@@ -113,7 +139,9 @@ class MultiPlayerState(GameState):
         canvas.fill(NOT_SO_WHITE)
         self.player1.render(canvas)
         self.player2.render(canvas)
-        self.ball.render(canvas)
+
+        for b in self.balls:
+            b.render(canvas)
 
     def remove_listeners(self):
         super(MultiPlayerState, self).remove_listeners()
