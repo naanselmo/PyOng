@@ -4,12 +4,13 @@ import math
 from constants import *
 from core.game_math import Vector2
 from entity.ball import Ball
-from entity.virtual_ball import VirtualBall
 from game_state import GameState
 
 from player import Player
 from entity.pad import Pad
-from entity.virtual_pad import VirtualPad
+
+from entity.virtual_entity import VirtualEntity
+
 
 class MultiPlayerState(GameState):
     def __init__(self, game):
@@ -17,8 +18,8 @@ class MultiPlayerState(GameState):
         self.player1 = Player(game.input, PLAYER1, Pad(Vector2(GAME_WIDTH - PAD_DISTANCE - PAD_WIDTH, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER1_DASH), MULTIPLAYER_LIVES)
         self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER2_DASH), MULTIPLAYER_LIVES)
         self.balls = [Ball()]
+        self.powerups = []
         self.winner = None
-        self.ball_hit_by_dash = False
 
     def show(self):
         pass
@@ -40,10 +41,24 @@ class MultiPlayerState(GameState):
             b.update(delta)
 
             # Check each ball
-            if self.check_upper_bottom_boundaries(b) or \
-            self.check_ball_collision(delta, b, self.player1.pad) or \
-            self.check_ball_collision(delta, b, self.player2.pad):
-                pass
+            self.check_upper_bottom_boundaries(b)
+
+            # Check each pad
+            for p in (self.player1.pad, self.player2.pad):
+                if self.check_entity_collision(delta, p, b):
+                    self.calculate_collision(p, b)
+                    if b.velocity.x < BALL_SPEED_LIMIT:
+                        b.velocity.x *= BALL_SPEED_MULTIPLIER
+                    else:
+                        b.velocity.x /= BALL_SPEED_MULTIPLIER
+
+                    # Transfer a portion of the speed to the ball
+                    b.velocity.y += BALL_SPEED_TRANSFER * p.velocity.y
+                    b.velocity.x += BALL_SPEED_TRANSFER_DASH * p.velocity.x
+
+                    # Add dash charge to the pad
+                    if p.charge < PAD_MAX_CHARGE:
+                        p.charge += p.charging_rate
 
             # Check scoring
             if self.check_left_boundary(b, self.player1, self.player2) or \
@@ -88,38 +103,24 @@ class MultiPlayerState(GameState):
             return True
         return False
 
-    def check_ball_collision(self, delta, ball, pad):
+    def check_entity_collision(self, delta, static, moving):
         # Maybe a collision should've happened but wasn't detected
         i = 0
         collision = False
-        virtualball = VirtualBall(ball.position-delta*ball.velocity, width=ball.width, height=ball.height, velocity=ball.velocity)
-        virtualpad = VirtualPad(pad.position-delta*pad.velocity, width=pad.width, height=pad.height, velocity=pad.velocity)
+        virtualmoving = VirtualEntity(moving.position-delta*moving.velocity, width=moving.width, height=moving.height, velocity=moving.velocity)
+        virtualstatic = VirtualEntity(static.position-delta*static.velocity, width=static.width, height=static.height, velocity=static.velocity)
         while not(collision) and i < COLLISION_INTERPOLATION:
-            virtualball.update(delta/COLLISION_INTERPOLATION)
-            virtualpad.update(delta/COLLISION_INTERPOLATION)
-            collision = virtualball.get_bounds().colliderect(virtualpad.get_bounds())
+            virtualmoving.update(delta/COLLISION_INTERPOLATION)
+            virtualstatic.update(delta/COLLISION_INTERPOLATION)
+            collision = virtualmoving.get_bounds().colliderect(virtualstatic.get_bounds())
             i += 1
 
         # We were right!
         if collision:
-            # Copy all of the virtual ball's variables
-            self.calculate_collision(pad, virtualball)
-            ball.position = virtualball.position
-            ball.velocity = virtualball.velocity
-            ball.update_bounds()
-
-            if ball.velocity.x < BALL_SPEED_LIMIT:
-                ball.velocity.x *= BALL_SPEED_MULTIPLIER
-            else:
-                ball.velocity.x /= BALL_SPEED_MULTIPLIER
-
-            # Transfer a portion of the speed to the ball
-            ball.velocity.y += BALL_SPEED_TRANSFER * pad.velocity.y
-            ball.velocity.x += BALL_SPEED_TRANSFER_DASH * pad.velocity.x
-
-            # Add dash charge to the pad
-            if pad.charge < PAD_MAX_CHARGE:
-                pad.charge += pad.charging_rate
+            # Copy the virtual ball's variables
+            moving.position = virtualmoving.position
+            moving.velocity = virtualmoving.velocity
+            moving.update_bounds()
 
         return collision
 
@@ -150,6 +151,9 @@ class MultiPlayerState(GameState):
 
         for b in self.balls:
             b.render(canvas)
+
+        for p in self.powerups:
+            p.render(canvas)
 
     def remove_listeners(self):
         super(MultiPlayerState, self).remove_listeners()
