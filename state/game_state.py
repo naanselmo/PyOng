@@ -51,30 +51,31 @@ class GameStateManager:
                 self.game_state.remove_listeners()
                 self.game_state.dispose()
 
-        # Set game state
-        self.game_state = game_state
+            # Set game state
+            self.game_state = game_state
 
-        if self.game_state is not None:
-            # Show the new game state and add its listeners
-            self.game_state.show()
-            self.game_state.add_listeners()
+            if self.game_state is not None:
+                # Show the new game state and add its listeners
+                self.game_state.show()
+                self.game_state.add_listeners()
 
     def push_overlay(self, overlay_state):
-        # If pushed None send an exception
-        if overlay_state is None:
-            raise ValueError('None is not a valid overlay')
+        with overlay_state.game.rendering:
+            # If pushed None send an exception
+            if overlay_state is None:
+                raise ValueError('None is not a valid overlay')
 
-        # Remove listeners
-        if len(self.overlay_states) == 0:
-            if self.game_state is not None:
-                self.game_state.remove_listeners()
-        else:
-            self.overlay_states[-1].remove_listeners()
+            # Remove listeners
+            if len(self.overlay_states) == 0:
+                if self.game_state is not None:
+                    self.game_state.remove_listeners()
+            else:
+                self.overlay_states[-1].remove_listeners()
 
-        # Append the overlay to the list, show it and add its listeners
-        self.overlay_states.append(overlay_state)
-        overlay_state.show()
-        overlay_state.add_listeners()
+            # Append the overlay to the list, show it and add its listeners
+            self.overlay_states.append(overlay_state)
+            overlay_state.show()
+            overlay_state.add_listeners()
 
     def pop_overlay(self):
         # Pop the current overlay, remove the listeners and dispose it.
