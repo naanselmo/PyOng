@@ -9,14 +9,16 @@ from game_state import GameState
 
 from player import Player
 from entity.pad import Pad
+from entity.virtual_pad import VirtualPad
 
 class MultiPlayerState(GameState):
     def __init__(self, game):
         super(MultiPlayerState, self).__init__(game)
-        self.player1 = Player(game.input, PLAYER1, Pad(Vector2(GAME_WIDTH - PAD_DISTANCE - PAD_WIDTH, GAME_HEIGHT/2 - PAD_HEIGHT/2)), MULTIPLAYER_LIVES)
-        self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2)), MULTIPLAYER_LIVES)
+        self.player1 = Player(game.input, PLAYER1, Pad(Vector2(GAME_WIDTH - PAD_DISTANCE - PAD_WIDTH, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER1_DASH), MULTIPLAYER_LIVES)
+        self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER2_DASH), MULTIPLAYER_LIVES)
         self.balls = [Ball()]
         self.winner = None
+        self.ball_hit_by_dash = False
 
     def show(self):
         pass
@@ -47,7 +49,6 @@ class MultiPlayerState(GameState):
             if self.check_left_boundary(b, self.player1, self.player2) or \
             self.check_right_boundary(b, self.player1, self.player2):
                 with self.game.rendering:
-                    print "DELETING BALLS!"
                     self.balls = [Ball()]
                     self.balls[0].update_bounds()
                     break
@@ -69,7 +70,7 @@ class MultiPlayerState(GameState):
 
     def check_right_boundary(self, ball, player1, player2):
         if ball.position.x + ball.width >= GAME_WIDTH:
-            player1.lives -= 1
+            player1.lives -= ball.damage
             print "Player 1 lost a life"
             if player1.lives <= 0:
                 self.winner = player2
@@ -79,7 +80,7 @@ class MultiPlayerState(GameState):
 
     def check_left_boundary(self, ball, player1, player2):
         if ball.position.x <= 0:
-            player2.lives -= 1
+            player2.lives -= ball.damage
             print "Player 2 lost a life"
             if player2.lives <= 0:
                 self.winner = player1
@@ -91,18 +92,20 @@ class MultiPlayerState(GameState):
         # Maybe a collision should've happened but wasn't detected
         i = 0
         collision = False
-        virtualball = VirtualBall(ball.position-delta*ball.velocity, width=ball.width, height=ball.height, velocity=(ball.velocity))
+        virtualball = VirtualBall(ball.position-delta*ball.velocity, width=ball.width, height=ball.height, velocity=ball.velocity)
+        virtualpad = VirtualPad(pad.position-delta*pad.velocity, width=pad.width, height=pad.height, velocity=pad.velocity)
         while not(collision) and i < COLLISION_INTERPOLATION:
             virtualball.update(delta/COLLISION_INTERPOLATION)
-            collision = virtualball.get_bounds().colliderect(pad.get_bounds())
+            virtualpad.update(delta/COLLISION_INTERPOLATION)
+            collision = virtualball.get_bounds().colliderect(virtualpad.get_bounds())
             i += 1
 
         # We were right!
         if collision:
+            # Copy all of the virtual ball's variables
             self.calculate_collision(pad, virtualball)
             ball.position = virtualball.position
             ball.velocity = virtualball.velocity
-            ball.damage = virtualball.damage
             ball.update_bounds()
 
             if ball.velocity.x < BALL_SPEED_LIMIT:
@@ -110,10 +113,15 @@ class MultiPlayerState(GameState):
             else:
                 ball.velocity.x /= BALL_SPEED_MULTIPLIER
 
+            # Transfer a portion of the speed to the ball
             ball.velocity.y += BALL_SPEED_TRANSFER * pad.velocity.y
             ball.velocity.x += BALL_SPEED_TRANSFER_DASH * pad.velocity.x
-            return True
-        return False
+
+            # Add dash charge to the pad
+            if pad.charge < PAD_MAX_CHARGE:
+                pad.charge += pad.charging_rate
+
+        return collision
 
     def calculate_collision(self, entity, point):
         entity_angle = math.atan2(entity.height/2, entity.width/2)

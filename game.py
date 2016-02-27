@@ -66,7 +66,6 @@ class Game:
         while self.running:
             # Let the clock do the math
             delta = self.logic_clock.tick(1000)
-            print self.logic_clock.get_rawtime()
 
             # Catch events
             self.input.catch_events()
