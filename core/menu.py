@@ -65,7 +65,9 @@ class MenuSlider(MenuComponent):
         pass
 
 
-class MenuOptions(MenuComponent):
+class VerticalMenuOptions(MenuComponent):
+    SPACE_THRESHOLD = 1.8
+
     def __init__(self, options, on_click=None, on_change=None, reverse=False, rotative=True):
         MenuComponent.__init__(self)
         self.menu_options = options
@@ -76,6 +78,7 @@ class MenuOptions(MenuComponent):
         self.selected_option = 0
         self.menu_options_surfaces = []
         self.text_color = None
+        self.__height = None
 
         self.reset()
 
@@ -83,38 +86,40 @@ class MenuOptions(MenuComponent):
         font_renderer = pygame.font.Font(font, font_size)
         self.text_color = color
         self.menu_options_surfaces = [font_renderer.render(option, antialias, color) for option in self.menu_options]
+        # Reverse the way we display things!
+        if self.reverse:
+            self.menu_options_surfaces.reverse()
 
     def update(self, input_handler):
+        # If not active its not worth update
         if not self.active:
             return
 
         # If active catch events
-        delta = 1 if not self.reverse else -1
         options_length = len(self.menu_options)
         if input_handler.key_clicked(pygame.K_DOWN):
             old_option = self.selected_option
             if self.rotative:
                 # If rotative, rotate it
-                self.selected_option = (self.selected_option + delta) % options_length
+                self.selected_option = (self.selected_option + 1) % options_length
             else:
-                stop_bool = self.selected_option != (options_length - 1 if not self.reverse else 0)
-                if stop_bool:
+                if self.selected_option != options_length - 1:
                     # Only change it if its not in the last option
-                    self.selected_option += delta
+                    self.selected_option += 1
 
             # Run the on change function
             if self.on_change is not None:
                 self.on_change(old_option, self.selected_option)
+
         if input_handler.key_clicked(pygame.K_UP):
             old_option = self.selected_option
             if self.rotative:
                 # If rotative, rotate it
-                self.selected_option = (self.selected_option - delta) % options_length
+                self.selected_option = (self.selected_option - 1) % options_length
             else:
-                stop_bool = self.selected_option != (0 if not self.reverse else options_length - 1)
-                if stop_bool:
+                if self.selected_option != 0:
                     # Only change it if its not in the first option
-                    self.selected_option -= delta
+                    self.selected_option -= 1
 
             # Run the on change function
             if self.on_change is not None:
@@ -128,17 +133,22 @@ class MenuOptions(MenuComponent):
     def render(self, canvas, center_x, y):
         for i in range(len(self.menu_options_surfaces)):
             option_surface = self.menu_options_surfaces[i]
-            surface_x = center_x - option_surface.get_width() / 2
-            if not self.reverse:
-                surface_y = y + i * option_surface.get_height() * 1.8
-            else:
-                surface_y = (y - option_surface.get_height()) - i * option_surface.get_height() * 1.8
             surface_width, surface_height = option_surface.get_size()
+
+            surface_x = center_x - surface_width / 2
+            delta = surface_height * VerticalMenuOptions.SPACE_THRESHOLD
+            if not self.reverse:
+                surface_y = y + i * delta
+            else:
+                surface_y = (y - surface_height) - i * delta
+
             canvas.blit(option_surface, (surface_x, surface_y))
-            # Draw arrow
-            if self.active and self.selected_option == i:
+
+            # Draw arrow if active
+            current_option = i if not self.reverse else len(self.menu_options_surfaces) - 1 - i
+            if self.active and self.selected_option == current_option:
                 arrow_width = arrow_height = surface_height / 1.6
-                arrow_x = surface_x - arrow_height * 2
+                arrow_x = surface_x - arrow_width * 2
                 arrow_y = surface_y + surface_height / 8
                 points = self.arrow_points(arrow_x, arrow_y, arrow_width, arrow_height)
                 pygame.draw.polygon(canvas, self.text_color, points)
@@ -148,3 +158,123 @@ class MenuOptions(MenuComponent):
 
     def reset(self):
         self.selected_option = 0
+
+    def get_height(self):
+        if self.__height is None:
+            self.__height = 0
+            options_length = len(self.menu_options_surfaces)
+            for i in range(options_length):
+                option_surface = self.menu_options_surfaces[i]
+                scale = VerticalMenuOptions.SPACE_THRESHOLD if i != options_length - 1 else 1
+                self.__height += option_surface.get_height() * scale
+        return self.__height
+
+
+class HorizontalMenuOptions(MenuComponent):
+    SPACE_THRESHOLD = 1.8
+
+    def __init__(self, options, on_click=None, on_change=None, reverse=False, rotative=True):
+        MenuComponent.__init__(self)
+        self.menu_options = options
+        self.on_click = on_click
+        self.on_change = on_change
+        self.reverse = reverse
+        self.rotative = rotative
+        self.selected_option = 0
+        self.menu_options_surfaces = []
+        self.text_color = None
+        self.__width = None
+
+        self.reset()
+
+    def init(self, font, font_size, antialias, color):
+        font_renderer = pygame.font.Font(font, font_size)
+        self.text_color = color
+        self.menu_options_surfaces = [font_renderer.render(option, antialias, color) for option in self.menu_options]
+        # Reverse the way we display things!
+        if self.reverse:
+            self.menu_options_surfaces.reverse()
+
+    def update(self, input_handler):
+        # If not active its not worth update
+        if not self.active:
+            return
+
+        # If active catch events
+        options_length = len(self.menu_options)
+        if input_handler.key_clicked(pygame.K_RIGHT):
+            old_option = self.selected_option
+            if self.rotative:
+                # If rotative, rotate it
+                self.selected_option = (self.selected_option + 1) % options_length
+            else:
+                if self.selected_option != options_length - 1:
+                    # Only change it if its not in the last option
+                    self.selected_option += 1
+
+            # Run the on change function
+            if self.on_change is not None:
+                self.on_change(old_option, self.selected_option)
+
+        if input_handler.key_clicked(pygame.K_LEFT):
+            old_option = self.selected_option
+            if self.rotative:
+                # If rotative, rotate it
+                self.selected_option = (self.selected_option - 1) % options_length
+            else:
+                if self.selected_option != 0:
+                    # Only change it if its not in the first option
+                    self.selected_option -= 1
+
+            # Run the on change function
+            if self.on_change is not None:
+                self.on_change(old_option, self.selected_option)
+
+        if input_handler.key_clicked(pygame.K_RETURN):
+            # If pressed enter run the click function
+            if self.on_click is not None:
+                self.on_click(self.selected_option)
+
+    def render(self, canvas, x, y):
+        for i in range(len(self.menu_options_surfaces)):
+            option_surface = self.menu_options_surfaces[i]
+            surface_width, surface_height = option_surface.get_size()
+            arrow_width = arrow_height = surface_height / 1.6
+
+            surface_y = y
+            surface_offset = arrow_width * 2
+            delta = (surface_offset + self.menu_options_surfaces[i - 1].get_width()
+                     + HorizontalMenuOptions.SPACE_THRESHOLD * surface_height)
+            if not self.reverse:
+                surface_x = x + surface_offset + i * delta
+            else:
+                surface_x = (x - surface_width) - i * delta
+
+            canvas.blit(option_surface, (surface_x, surface_y))
+
+            # Draw arrow if active
+            current_option = i if not self.reverse else len(self.menu_options_surfaces) - 1 - i
+            if self.active and self.selected_option == current_option:
+                arrow_x = surface_x - surface_offset
+                arrow_y = surface_y + surface_height / 8
+                points = self.arrow_points(arrow_x, arrow_y, arrow_width, arrow_height)
+                pygame.draw.polygon(canvas, self.text_color, points)
+
+    def arrow_points(self, x, y, width, height):
+        return (x, y), (x, y + height), (x + width, y + (height / 2))
+
+    def reset(self):
+        self.selected_option = 0
+
+    def get_width(self):
+        if self.__width is None:
+            self.__width = 0
+            options_length = len(self.menu_options_surfaces)
+            for i in range(options_length):
+                option_surface = self.menu_options_surfaces[i]
+                scale = VerticalMenuOptions.SPACE_THRESHOLD if i != options_length - 1 else 1
+                self.__width += option_surface.get_height() * scale
+        return self.__width
+
+    def get_height(self):
+        return self.menu_options_surfaces[0].get_height()

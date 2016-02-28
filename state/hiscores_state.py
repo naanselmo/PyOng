@@ -4,7 +4,7 @@ from pygame.mixer import Sound
 import resources
 
 from constants import *
-from core.menu import MenuOptions
+from core.menu import HorizontalMenuOptions
 from state.game_state import GameState
 
 
@@ -12,11 +12,11 @@ class HiscoresState(GameState):
     def __init__(self, game):
         super(HiscoresState, self).__init__(game)
         # Listen to escape only
-        self.listen_keys = (pygame.K_ESCAPE, pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN)
+        self.listen_keys = (pygame.K_ESCAPE, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_RETURN)
 
         # Model of the hiscores
         self.scores = self.hiscores.get_scores(10)
-        self.back_options = MenuOptions(['Back'], self.on_click, self.on_change, True, False)
+        self.back_options = HorizontalMenuOptions(['Back'], self.on_click, self.on_change, True, False)
 
         # Surfaces
         self.title_surface = None
@@ -69,7 +69,7 @@ class HiscoresState(GameState):
             canvas.blit(score_surface, (surface_x, surface_y))
 
         # Draw back option
-        self.back_options.render(canvas, GAME_WIDTH/6*5, GAME_HEIGHT-20)
+        self.back_options.render(canvas, GAME_WIDTH * 0.80, GAME_HEIGHT - 20 - self.back_options.get_height())
 
     def score_width(self, score):
         return len(score.name) + len(str(score.score))

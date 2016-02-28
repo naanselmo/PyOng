@@ -3,7 +3,7 @@ from pygame.mixer import Sound
 import resources
 
 from constants import *
-from core.menu import MenuOptions
+from core.menu import VerticalMenuOptions
 from state.game_state import GameState
 
 
@@ -33,8 +33,16 @@ class MenuState(GameState):
         self.hiscore = str(self.game.hiscores.get_hiscore().score)
         self.rights = u'\u00a9 Dezassete'
         self.current_menu_options = None
-        self.main_menu_options = MenuOptions(['Play', 'Hi-scores', 'Exit'], self.main_menu_on_click, self.on_change)
-        self.play_menu_options = MenuOptions(['1 Player', '2 Players', 'Back'], self.play_menu_on_click, self.on_change)
+        self.main_menu_options = VerticalMenuOptions(
+            ['Play', 'Hi-scores', 'Exit'],
+            self.main_menu_on_click,
+            self.on_change
+        )
+        self.play_menu_options = VerticalMenuOptions(
+            ['1 Player', '2 Players', 'Back'],
+            self.play_menu_on_click,
+            self.on_change
+        )
 
         # Surfaces
         self.hiscore_surface = None
