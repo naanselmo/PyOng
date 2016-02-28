@@ -13,7 +13,7 @@ class PowerUp(Entity):
     """docstring for PowerUp"""
     __metaclass__ = ABCMeta
 
-    def __init__(self, position, velocity = (0, 0), width=POWERUP_WIDTH, height=POWERUP_HEIGHT):
+    def __init__(self, position, velocity = (0, 0), width=POWERUP_SIZE, height=POWERUP_SIZE):
         super(PowerUp, self).__init__(position, velocity, width, height)
 
     def update(self, delta):

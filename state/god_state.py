@@ -97,52 +97,16 @@ class Menu:
     def dispose(self):
         pass
 
-
-class TestMenu(Menu):
-    def __init__(self, state):
-        self.slider = MenuSlider(300, 500, 700)
-        self.slider2 = MenuSlider(400, 600, 800)
-        self.options = VerticalMenuOptions(['Back'], self.on_click, self.on_change, True, False)
-        components = [self.slider, self.slider2, self.options]
-        super(TestMenu, self).__init__(components, state)
-
-    def init(self):
-        self.slider.init(300, 7, NOT_SO_WHITE, NOT_SO_WHITE)
-        self.slider2.init(300, 7, NOT_SO_WHITE, NOT_SO_WHITE)
-
-        font = resources.get_font('prstartcustom.otf')
-        self.options.init(font, 15, True, NOT_SO_WHITE)
-
-    def update_menu(self, input_handler, delta):
-        self.slider.update(input_handler, delta)
-        self.slider2.update(input_handler, delta)
-        self.options.update(input_handler)
-
-    def render(self, canvas):
-        self.slider.render(canvas, GAME_WIDTH / 2, 100)
-        self.slider2.render(canvas, GAME_WIDTH / 2, 200)
-        self.options.render(canvas, GAME_WIDTH / 6 * 5, GAME_HEIGHT - 20)
-
-    def on_change(self, old_option, new_option):
-        if old_option == new_option == 0:
-            self.move_up()
-
-    def on_click(self, option):
-        self.state_manager.pop_overlay()
-
-    def dispose(self):
-        pass
-
-
 class MainMenu(Menu):
     PAD_SETTINGS = 0
     BALL_SETTINGS = 1
-    EXIT_OPTION = 2
+    POWERUP_SETTINGS = 2
+    EXIT_OPTION = 3
 
     def __init__(self, state):
         # Model of the menu
         self.menu_options = VerticalMenuOptions(
-            ['Pad Settings', 'Ball Settings', 'Exit'],
+            ['Pad Settings', 'Ball Settings', 'PowerUp Settings', 'Exit'],
             self.on_click
         )
 
@@ -165,6 +129,8 @@ class MainMenu(Menu):
             self.state.set_menu(PadSettingsMenu(self.state))
         elif option == MainMenu.BALL_SETTINGS:
             self.state.set_menu(BallSettingsMenu(self.state))
+        elif option == MainMenu.POWERUP_SETTINGS:
+            self.state.set_menu(PowerUpSettingsMenu(self.state))
         elif option == MainMenu.EXIT_OPTION:
             self.state_manager.pop_overlay()
 
@@ -358,6 +324,101 @@ class BallSettingsMenu(Menu):
         constants.BALL_SPEED_LIMIT = self.speed_limit_slider.value
         constants.BALL_SPEED_MULTIPLIER = self.speed_multiplier_slider.value
         constants.BALL_RADIUS = self.radius_slider.value
+        constants.VIRGINITY = False
+
+    def dispose(self):
+        pass
+
+class PowerUpSettingsMenu(Menu):
+    APPLY_OPTION = 0
+    BACK_OPTION = 1
+
+    LABELS_SPACE = 40
+    LABEL_SLIDER_SPACE = 10
+
+    def __init__(self, state):
+        self.__height = None
+
+        # Menu components
+        import constants
+        self.count_slider = MenuSlider(0, constants.POWERUP_MAX, 10)
+        self.probability_slider = MenuSlider(0, constants.POWERUP_PROBABILITY, 10)
+        self.size_slider = MenuSlider(2, constants.POWERUP_SIZE, 50)
+        self.options = HorizontalMenuOptions(['Apply', 'Back'], self.on_click, self.on_change, True)
+        components = [self.count_slider, self.probability_slider, self.size_slider, self.options]
+        super(PowerUpSettingsMenu, self).__init__(components, state)
+
+        # Surfaces
+        self.count_label_surface = None
+        self.probability_label_surface = None
+        self.size_label_surface = None
+
+        # All slider/label pairs for easy render and updating
+        self.sliders = None
+
+    def init(self):
+        font = resources.get_font('prstartcustom.otf')
+        # Initialize all sliders
+        self.count_slider.init(300, 7, MORE_WHITE, MORE_WHITE)
+        self.probability_slider.init(300, 7, MORE_WHITE, MORE_WHITE)
+        self.size_slider.init(300, 7, MORE_WHITE, MORE_WHITE)
+        # Initialize back option
+        self.options.init(font, 15, True, MORE_WHITE)
+
+        # Initialize surfaces
+        font_renderer = pygame.font.Font(font, 15)
+        self.count_label_surface = font_renderer.render('PowerUp Max Count:', True, MORE_WHITE)
+        self.probability_label_surface = font_renderer.render('PowerUp Rarity:', True, MORE_WHITE)
+        self.size_label_surface = font_renderer.render('PowerUp Size:', True, MORE_WHITE)
+
+        # Update the sliders tuple
+        self.sliders = (
+            (self.count_label_surface, self.count_slider),
+            (self.probability_label_surface, self.probability_slider),
+            (self.size_label_surface, self.size_slider)
+        )
+
+    def update_menu(self, input_handler, delta):
+        for _, slider in self.sliders:
+            slider.update(input_handler, delta)
+        self.options.update(input_handler)
+
+    def render(self, canvas):
+        # Render all sliders
+        label_slider_space = BallSettingsMenu.LABEL_SLIDER_SPACE
+        labels_space = BallSettingsMenu.LABELS_SPACE
+        y = GAME_HEIGHT / 2 - self.get_height() / 1.8
+        for label, slider in self.sliders:
+            canvas.blit(label, (GAME_WIDTH / 2 - label.get_width() / 2, y))
+            slider.render(canvas, GAME_WIDTH / 2, y + label.get_height() + label_slider_space)
+            y += label.get_height() + label_slider_space + slider.bar_height + labels_space
+
+        # Render back and apply options
+        self.options.render(canvas, GAME_WIDTH * 0.80, GAME_HEIGHT - 20 - self.options.get_height())
+
+    def get_height(self):
+        if self.__height is None:
+            self.__height = 0
+            sliders_len = len(self.sliders)
+            for i in range(sliders_len):
+                label, slider = self.sliders[i]
+                space = BallSettingsMenu.LABELS_SPACE if i != sliders_len - 1 else 0
+                self.__height += label.get_height() + BallSettingsMenu.LABEL_SLIDER_SPACE + slider.bar_height + space
+        return self.__height
+
+    def on_change(self, old_option, new_option):
+        pass
+
+    def on_click(self, option):
+        if option == BallSettingsMenu.APPLY_OPTION:
+            self.save_changes()
+        self.state.set_menu(MainMenu(self.state))
+
+    def save_changes(self):
+        import constants
+        constants.POWERUP_MAX = self.count_slider.value
+        constants.POWERUP_PROBABILITY = self.probability_slider.value
+        constants.POWERUP_SIZE = self.size_slider.value
         constants.VIRGINITY = False
 
     def dispose(self):
