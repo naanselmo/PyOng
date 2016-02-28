@@ -11,7 +11,7 @@ from state.game_state import GameState
 class GodState(GameState):
     def __init__(self, game):
         super(GodState, self).__init__(game)
-        self.listen_keys = (pygame.K_ESCAPE, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN)
+        self.listen_keys = (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN)
 
         # Model of the state
         self.menu = MainMenu(self)
