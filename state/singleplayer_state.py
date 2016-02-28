@@ -27,12 +27,13 @@ class SinglePlayerState(GameState):
     def __init__(self, game):
         super(SinglePlayerState, self).__init__(game)
         self.player = Player(game.input, PLAYER1, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2)), SINGLEPLAYER_LIVES)
-        self.balls = [Ball()]
+        self.balls = []
         self.powerups = []
         self.score_multiplier = SINGLEPLAYER_SCORE_MULTIPLIER
         self.time_since_powerup_check = 0
         self.score = 0
         self.gameover = False
+        self.instructions = True
 
         # Text rendering
         self.font = None
@@ -77,6 +78,13 @@ class SinglePlayerState(GameState):
         self.player.add_listeners()
 
     def update(self, delta):
+        if self.instructions:
+            pygame.time.wait(4750)
+            self.instructions = False
+            pygame.time.wait(250)
+            self.game.logic_clock.tick()
+            self.balls = [Ball()]
+
         # Check pads
         self.player.update(delta)
         self.check_upper_bottom_right_boundaries(self.player.pad)
@@ -212,7 +220,16 @@ class SinglePlayerState(GameState):
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
 
-        if self.gameover:
+        if self.instructions:
+            font = resources.get_font('prstartcustom.otf')
+            font_renderer = pygame.font.Font(self.font, 15)
+            instructions_surface = font_renderer.render("USE THE UP & DOWN ARROW KEYS", True, NOT_SO_BLACK)
+            goodluck_surface = font_renderer.render("GOOD LUCK.", True, NOT_SO_BLACK)
+            canvas.blit(instructions_surface, (GAME_WIDTH/2 - instructions_surface.get_width()/2, GAME_HEIGHT/2 - instructions_surface.get_height() - 10))
+            canvas.blit(goodluck_surface, (GAME_WIDTH/2 - goodluck_surface.get_width()/2, GAME_HEIGHT/2 + 10))
+            return
+
+        elif self.gameover:
             font = resources.get_font('prstartcustom.otf')
             font_renderer = pygame.font.Font(self.font, 18)
             end_surface = font_renderer.render("GAME OVER. FINAL SCORE: " + str(self.score), True, NOT_SO_BLACK)

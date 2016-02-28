@@ -24,10 +24,11 @@ class MultiPlayerState(GameState):
         super(MultiPlayerState, self).__init__(game)
         self.player1 = Player(game.input, PLAYER1, Pad(Vector2(GAME_WIDTH - PAD_DISTANCE - PAD_WIDTH, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER1_DASH), MULTIPLAYER_LIVES)
         self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER2_DASH), MULTIPLAYER_LIVES)
-        self.balls = [Ball()]
+        self.balls = []
         self.powerups = []
         self.time_since_powerup_check = 0
         self.winner = None
+        self.instructions = True
 
         # Text rendering
         self.font = None
@@ -81,6 +82,13 @@ class MultiPlayerState(GameState):
         self.player2.add_listeners()
 
     def update(self, delta):
+        if self.instructions:
+            pygame.time.wait(4750)
+            self.instructions = False
+            pygame.time.wait(250)
+            self.game.logic_clock.tick()
+            self.balls = [Ball()]
+
         # Check pads
         self.player1.update(delta)
         self.check_upper_bottom_boundaries(self.player1.pad)
@@ -230,7 +238,26 @@ class MultiPlayerState(GameState):
 
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
-        if self.winner is not None:
+
+        if self.instructions:
+            font = resources.get_font('prstartcustom.otf')
+            font_renderer = pygame.font.Font(self.font, 10)
+            font_renderer_large = pygame.font.Font(self.font, 18)
+            fight_surface = font_renderer_large.render("PREPARE TO FIGHT.", True, NOT_SO_BLACK)
+            instructions_player1_1_surface = font_renderer.render("USE THE UP & DOWN ARROW KEYS", True, NOT_SO_BLACK)
+            instructions_player1_2_surface = font_renderer.render("USE LEFT ARROW KEY TO DASH", True, NOT_SO_BLACK)
+            instructions_player2_1_surface = font_renderer.render("USE W & S", True, NOT_SO_BLACK)
+            instructions_player2_2_surface = font_renderer.render("USE D TO DASH", True, NOT_SO_BLACK)
+            goodluck_surface = font_renderer_large.render("GOOD LUCK.", True, NOT_SO_BLACK)
+            canvas.blit(fight_surface, (GAME_WIDTH/2 - fight_surface.get_width()/2, GAME_HEIGHT/4))
+            canvas.blit(instructions_player1_1_surface, (3*GAME_WIDTH/4 - instructions_player1_1_surface.get_width()/2, GAME_HEIGHT/2 - instructions_player1_1_surface.get_height()/2 - 10))
+            canvas.blit(instructions_player1_2_surface, (3*GAME_WIDTH/4 - instructions_player1_2_surface.get_width()/2, GAME_HEIGHT/2 + 10))
+            canvas.blit(instructions_player2_1_surface, (GAME_WIDTH/4 - instructions_player2_1_surface.get_width()/2, GAME_HEIGHT/2 - instructions_player1_2_surface.get_height()/2 - 10))
+            canvas.blit(instructions_player2_2_surface, (GAME_WIDTH/4 - instructions_player2_2_surface.get_width()/2, GAME_HEIGHT/2 + 10))
+            canvas.blit(goodluck_surface, (GAME_WIDTH/2 - goodluck_surface.get_width()/2, 3*GAME_HEIGHT/4))
+            return
+
+        elif self.winner is not None:
             if self.winner is self.player1:
                 winner = "PLAYER ONE (RIGHT)"
             else:

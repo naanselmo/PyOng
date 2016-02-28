@@ -43,6 +43,8 @@ class Pad(Entity):
         if self.height != PAD_HEIGHT:
             self.position.y -= POWERUP_SIZE_RESTITUTION_RATE * 0.00001 * delta * (PAD_HEIGHT - self.height) * 0.5
             self.height += POWERUP_SIZE_RESTITUTION_RATE * 0.00001 * delta * (PAD_HEIGHT - self.height)
+            if self.height > GAME_HEIGHT:
+                self.height = GAME_HEIGHT - 10
 
         if self.invisible:
             self.invisible_timer -= delta
