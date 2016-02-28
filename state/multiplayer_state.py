@@ -36,13 +36,13 @@ class MultiPlayerState(GameState):
 
     def show(self):
         # Start the music
-        pygame.mixer.music.load(resources.get_music('anthem.ogg'))
+        pygame.mixer.music.load(resources.get_music('mortalkombat.ogg'))
         pygame.mixer.music.play(-1)
 
         # Initialize the sounds
-        self.wall_hit_sound = Sound(resources.get_sound('menu_select.wav'))
-        self.pad_hit_sound = Sound(resources.get_sound('menu_select.wav'))
-        self.powerup_sound = Sound(resources.get_sound('menu_select.wav'))
+        self.wall_hit_sound = Sound(resources.get_sound('on_wall_hit.wav'))
+        self.pad_hit_sound = Sound(resources.get_sound('on_pad_hit.wav'))
+        self.powerup_sound = Sound(resources.get_sound('powerup.wav'))
 
     def add_listeners(self):
         super(MultiPlayerState, self).add_listeners()
