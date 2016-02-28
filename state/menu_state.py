@@ -61,6 +61,10 @@ class MenuState(GameState):
         self.listen_keys = tuple(listen_keys_list)
 
     def show(self):
+        # Start the music
+        pygame.mixer.music.load(resources.get_music('anthem.ogg'))
+        pygame.mixer.music.play(-1)
+
         # Get font name
         font = resources.get_font('prstartcustom.otf')
 
@@ -151,4 +155,4 @@ class MenuState(GameState):
         self.select_sound.play()
 
     def dispose(self):
-        pass
+        pygame.mixer.music.stop()
