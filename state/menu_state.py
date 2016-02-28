@@ -30,7 +30,7 @@ class MenuState(GameState):
         # Model of the menu
         self.title = GAME_TITLE
         self.selected = 0
-        self.hiscore = str(self.game.hiscores.get_hiscore().score)
+        self.hiscore = str(self.game.hiscores.get_hiscore().name) + " - " + str(self.game.hiscores.get_hiscore().score)
         self.rights = u'\u00a9 Dezassete'
         self.current_menu_options = None
         self.main_menu_options = VerticalMenuOptions(
