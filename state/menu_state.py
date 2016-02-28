@@ -62,7 +62,7 @@ class MenuState(GameState):
 
     def show(self):
         # Start the music
-        pygame.mixer.music.load(resources.get_music('anthem.ogg'))
+        pygame.mixer.music.load(resources.get_music('whatislove.ogg'))
         pygame.mixer.music.play(-1)
 
         # Get font name
