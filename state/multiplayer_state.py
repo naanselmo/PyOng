@@ -1,6 +1,9 @@
 import pygame
 import math
 
+from pygame.mixer import Sound
+
+import resources
 from constants import *
 from core.game_math import Vector2
 from entity.ball import Ball
@@ -26,8 +29,20 @@ class MultiPlayerState(GameState):
         self.time_since_powerup_check = 0
         self.winner = None
 
+        # Sounds
+        self.wall_hit_sound = None
+        self.pad_hit_sound = None
+        self.powerup_sound = None
+
     def show(self):
-        pass
+        # Start the music
+        pygame.mixer.music.load(resources.get_music('anthem.ogg'))
+        pygame.mixer.music.play(-1)
+
+        # Initialize the sounds
+        self.wall_hit_sound = Sound(resources.get_sound('menu_select.wav'))
+        self.pad_hit_sound = Sound(resources.get_sound('menu_select.wav'))
+        self.powerup_sound = Sound(resources.get_sound('menu_select.wav'))
 
     def add_listeners(self):
         super(MultiPlayerState, self).add_listeners()
@@ -54,11 +69,13 @@ class MultiPlayerState(GameState):
             b.update(delta)
 
             # Check each ball
-            self.check_upper_bottom_boundaries(b)
+            if self.check_upper_bottom_boundaries(b):
+                self.on_wall_hit()
 
             # Check each pad
             for p in (self.player1, self.player2):
                 if self.check_entity_collision(delta, p.pad, b):
+                    self.on_pad_hit()
                     self.calculate_collision(p.pad, b)
                     if b.velocity.x < BALL_SPEED_LIMIT:
                         b.velocity.x *= BALL_SPEED_MULTIPLIER
@@ -86,6 +103,7 @@ class MultiPlayerState(GameState):
             if b.owner != None:
                 for p in self.powerups:
                     if self.check_entity_collision(delta, p, b):
+                        self.on_powerup()
                         p.apply(self, b)
                         self.powerups.remove(p)
 
@@ -186,10 +204,19 @@ class MultiPlayerState(GameState):
         for p in self.powerups:
             p.render(canvas)
 
+    def on_wall_hit(self):
+        self.wall_hit_sound.play()
+
+    def on_pad_hit(self):
+        self.pad_hit_sound.play()
+
+    def on_powerup(self):
+        self.powerup_sound.play()
+
     def remove_listeners(self):
         super(MultiPlayerState, self).remove_listeners()
         self.player1.remove_listeners()
         self.player2.remove_listeners()
 
     def dispose(self):
-        pass
+        pygame.mixer.music.stop()

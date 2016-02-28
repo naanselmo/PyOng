@@ -1,5 +1,7 @@
 from abc import abstractmethod, ABCMeta
 
+from pygame.mixer import Sound
+
 import resources
 from constants import *
 from core.menu import MenuSlider, VerticalMenuOptions, HorizontalMenuOptions
@@ -54,9 +56,12 @@ class Menu:
         self.components[self.active_component].active = True
         self.disable_update = [VerticalMenuOptions]
 
-    @abstractmethod
+        # Sounds
+        self.select_sound = None
+
     def init(self):
-        pass
+        # Initialize sounds
+        self.select_sound = Sound(resources.get_sound('menu_select.wav'))
 
     def update(self, input_handler, delta):
         # If active component is not in the disabled classes for update, update it and only update the components in
@@ -74,12 +79,14 @@ class Menu:
         self.update_menu(input_handler, delta)
 
     def move_up(self):
+        self.select_sound.play()
         if self.active_component != 0:
             self.components[self.active_component].active = False
             self.active_component -= 1
             self.components[self.active_component].active = True
 
     def move_down(self):
+        self.select_sound.play()
         if self.active_component != len(self.components) - 1:
             self.components[self.active_component].active = False
             self.active_component += 1
@@ -97,6 +104,7 @@ class Menu:
     def dispose(self):
         pass
 
+
 class MainMenu(Menu):
     PAD_SETTINGS = 0
     BALL_SETTINGS = 1
@@ -107,7 +115,8 @@ class MainMenu(Menu):
         # Model of the menu
         self.menu_options = VerticalMenuOptions(
             ['Pad Settings', 'Ball Settings', 'PowerUp Settings', 'Exit'],
-            self.on_click
+            self.on_click,
+            self.on_change
         )
 
         # Run super __init__
@@ -115,6 +124,10 @@ class MainMenu(Menu):
         super(MainMenu, self).__init__(components, state)
 
     def init(self):
+        # Initialize super
+        super(MainMenu, self).init()
+
+        #  Initialize the menu
         font = resources.get_font('prstartcustom.otf')
         self.menu_options.init(font, 15, True, MORE_WHITE)
 
@@ -125,6 +138,7 @@ class MainMenu(Menu):
         self.menu_options.render(canvas, GAME_WIDTH / 2, GAME_HEIGHT / 2 - self.menu_options.get_height() / 2)
 
     def on_click(self, option):
+        self.select_sound.play()
         if option == MainMenu.PAD_SETTINGS:
             self.state.set_menu(PadSettingsMenu(self.state))
         elif option == MainMenu.BALL_SETTINGS:
@@ -133,6 +147,9 @@ class MainMenu(Menu):
             self.state.set_menu(PowerUpSettingsMenu(self.state))
         elif option == MainMenu.EXIT_OPTION:
             self.state_manager.pop_overlay()
+
+    def on_change(self, old_option, new_option):
+        self.select_sound.play()
 
     def dispose(self):
         pass
@@ -166,6 +183,9 @@ class PadSettingsMenu(Menu):
         self.sliders = None
 
     def init(self):
+        # Initialize super
+        super(PadSettingsMenu, self).init()
+
         font = resources.get_font('prstartcustom.otf')
         # Initialize all sliders
         self.speed_slider.init(300, 7, MORE_WHITE, MORE_WHITE)
@@ -216,9 +236,10 @@ class PadSettingsMenu(Menu):
         return self.__height
 
     def on_change(self, old_option, new_option):
-        pass
+        self.select_sound.play()
 
     def on_click(self, option):
+        self.select_sound.play()
         if option == PadSettingsMenu.APPLY_OPTION:
             self.save_changes()
         self.state.set_menu(MainMenu(self.state))
@@ -262,6 +283,9 @@ class BallSettingsMenu(Menu):
         self.sliders = None
 
     def init(self):
+        # Initialize super
+        super(BallSettingsMenu, self).init()
+
         font = resources.get_font('prstartcustom.otf')
         # Initialize all sliders
         self.speed_limit_slider.init(300, 7, MORE_WHITE, MORE_WHITE)
@@ -312,9 +336,10 @@ class BallSettingsMenu(Menu):
         return self.__height
 
     def on_change(self, old_option, new_option):
-        pass
+        self.select_sound.play()
 
     def on_click(self, option):
+        self.select_sound.play()
         if option == BallSettingsMenu.APPLY_OPTION:
             self.save_changes()
         self.state.set_menu(MainMenu(self.state))
@@ -357,6 +382,9 @@ class PowerUpSettingsMenu(Menu):
         self.sliders = None
 
     def init(self):
+        # Initialize super
+        super(PowerUpSettingsMenu, self).init()
+
         font = resources.get_font('prstartcustom.otf')
         # Initialize all sliders
         self.count_slider.init(300, 7, MORE_WHITE, MORE_WHITE)
@@ -407,9 +435,10 @@ class PowerUpSettingsMenu(Menu):
         return self.__height
 
     def on_change(self, old_option, new_option):
-        pass
+        self.select_sound.play()
 
     def on_click(self, option):
+        self.select_sound.play()
         if option == BallSettingsMenu.APPLY_OPTION:
             self.save_changes()
         self.state.set_menu(MainMenu(self.state))
