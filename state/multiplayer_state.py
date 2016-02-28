@@ -29,6 +29,22 @@ class MultiPlayerState(GameState):
         self.time_since_powerup_check = 0
         self.winner = None
 
+        # Text rendering
+        self.font = None
+        self.font_renderer = None
+
+        # Player 1 Text
+        self.player1_lives_label_surface = None
+        self.player1_lives_surface = None
+        self.player1_charge_label_surface = None
+        self.player1_charge_surface = None
+
+        # Player 2 Text
+        self.player2_lives_label_surface = None
+        self.player2_lives_surface = None
+        self.player2_charge_label_surface = None
+        self.player2_charge_surface = None
+
         # Sounds
         self.wall_hit_sound = None
         self.pad_hit_sound = None
@@ -38,6 +54,21 @@ class MultiPlayerState(GameState):
         # Start the music
         pygame.mixer.music.load(resources.get_music('mortalkombat.ogg'))
         pygame.mixer.music.play(-1)
+
+        self.font = resources.get_font('prstartcustom.otf')
+        self.font_renderer = pygame.font.Font(self.font, 12)
+
+        # Player 1 Text
+        self.player1_lives_label_surface = self.font_renderer.render('Lives: ', True, NOT_SO_BLACK)
+        self.player1_lives_surface = self.font_renderer.render(str(self.player1.lives), True, NOT_SO_BLACK)
+        self.player1_charge_label_surface = self.font_renderer.render('Charge: ', True, NOT_SO_BLACK)
+        self.player1_charge_surface = self.font_renderer.render(str(self.player1.pad.charge), True, NOT_SO_BLACK)
+
+        # Player 2 Text
+        self.player2_lives_label_surface = self.font_renderer.render('Lives: ', True, NOT_SO_BLACK)
+        self.player2_lives_surface = self.font_renderer.render(str(self.player2.lives), True, NOT_SO_BLACK)
+        self.player2_charge_label_surface = self.font_renderer.render('Charge: ', True, NOT_SO_BLACK)
+        self.player2_charge_surface = self.font_renderer.render(str(self.player2.pad.charge), True, NOT_SO_BLACK)
 
         # Initialize the sounds
         self.wall_hit_sound = Sound(resources.get_sound('on_wall_hit.wav'))
@@ -113,8 +144,10 @@ class MultiPlayerState(GameState):
             if self.check_left_boundary(b, self.player1, self.player2) or \
             self.check_right_boundary(b, self.player1, self.player2):
                 with self.game.rendering:
-                    self.balls = [Ball()]
-                    self.balls[0].update_bounds()
+                    self.balls.remove(b)
+                    if not self.balls:
+                        self.balls += [Ball()]
+
                     break
 
     def check_upper_bottom_boundaries(self, entity):
@@ -203,6 +236,22 @@ class MultiPlayerState(GameState):
 
         for p in self.powerups:
             p.render(canvas)
+
+        # Render player 1 Text
+        self.player1_lives_surface = self.font_renderer.render(str(self.player1.lives), True, NOT_SO_BLACK)
+        self.player1_charge_surface = self.font_renderer.render(str(100*self.player1.pad.charge/PAD_MAX_CHARGE) + '%', True, NOT_SO_BLACK)
+        canvas.blit(self.player1_lives_label_surface, (GAME_WIDTH - 20 - self.player1_lives_surface.get_width() - self.player1_lives_label_surface.get_width(), 15))
+        canvas.blit(self.player1_lives_surface, (GAME_WIDTH - 20 - self.player1_lives_surface.get_width(), 15))
+        canvas.blit(self.player1_charge_label_surface, (GAME_WIDTH - 20 - self.player1_charge_surface.get_width() - self.player1_charge_label_surface.get_width(), 35))
+        canvas.blit(self.player1_charge_surface, (GAME_WIDTH - 20 - self.player1_charge_surface.get_width(), 35))
+
+        # Render player 2 Text
+        self.player2_lives_surface = self.font_renderer.render(str(self.player2.lives), True, NOT_SO_BLACK)
+        self.player2_charge_surface = self.font_renderer.render(str(100*self.player2.pad.charge/PAD_MAX_CHARGE) + '%', True, NOT_SO_BLACK)
+        canvas.blit(self.player2_lives_label_surface, (20, 15))
+        canvas.blit(self.player2_lives_surface, (20 + self.player2_lives_label_surface.get_width(), 15))
+        canvas.blit(self.player2_charge_label_surface, (20, 35))
+        canvas.blit(self.player2_charge_surface, (20 + self.player2_charge_label_surface.get_width(), 35))
 
     def on_wall_hit(self):
         self.wall_hit_sound.play()
