@@ -18,5 +18,4 @@ class Explosive(PowerUp):
         pygame.draw.rect(canvas, NOT_SO_BLACK, self.get_bounds())
 
     def apply(self, state, ball):
-        with state.game.rendering:
-            ball.damage *= 2
+        ball.damage *= POWERUP_DAMAGE_FACTOR

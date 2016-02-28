@@ -18,7 +18,6 @@ class Extend(PowerUp):
         pygame.draw.rect(canvas, NOT_SO_BLACK, self.get_bounds())
 
     def apply(self, state, ball):
-        with state.game.rendering:
-            if ball.owner is not None:
-                ball.owner.pad.position.y -= ball.owner.pad.height * 0.25
-                ball.owner.pad.height *= 1.5
+        if ball.owner is not None:
+            ball.owner.pad.position.y -= ball.owner.pad.height * (1 - POWERUP_EXTEND_FACTOR)/2
+            ball.owner.pad.height *= POWERUP_EXTEND_FACTOR

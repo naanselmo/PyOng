@@ -62,7 +62,13 @@ class MultiPlayerState(GameState):
                     if p.pad.charge < PAD_MAX_CHARGE:
                         p.pad.charge += p.pad.charging_rate
 
+                    if b.stunning:
+                        b.stunning = False
+                        p.pad.stunned = True
+                        p.pad.stunned_timer = POWERUP_STUN_DURATION
+
                     b.owner = p
+
                     break
 
             # Check each powerup
