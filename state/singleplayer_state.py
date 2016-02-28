@@ -26,6 +26,7 @@ from random import randint
 class SinglePlayerState(GameState):
     def __init__(self, game):
         super(SinglePlayerState, self).__init__(game)
+        self.listen_keys = (pygame.K_ESCAPE,)
         self.player = Player(game.input, PLAYER1, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2)), SINGLEPLAYER_LIVES)
         self.balls = [Ball()]
         self.powerups = []
@@ -76,6 +77,12 @@ class SinglePlayerState(GameState):
         self.player.add_listeners()
 
     def update(self, delta):
+        # Check if paused
+        if self.input.key_clicked(pygame.K_ESCAPE):
+            from pause_state import PauseState
+            self.state_manager.push_overlay(PauseState(self.game, SinglePlayerState(self.game)))
+            return
+
         # Check pads
         self.player.update(delta)
         self.check_upper_bottom_right_boundaries(self.player.pad)

@@ -22,6 +22,7 @@ from random import randint
 class MultiPlayerState(GameState):
     def __init__(self, game):
         super(MultiPlayerState, self).__init__(game)
+        self.listen_keys = (pygame.K_ESCAPE,)
         self.player1 = Player(game.input, PLAYER1, Pad(Vector2(GAME_WIDTH - PAD_DISTANCE - PAD_WIDTH, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER1_DASH), MULTIPLAYER_LIVES)
         self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER2_DASH), MULTIPLAYER_LIVES)
         self.balls = [Ball()]
@@ -81,6 +82,12 @@ class MultiPlayerState(GameState):
         self.player2.add_listeners()
 
     def update(self, delta):
+        # Check if paused
+        if self.input.key_clicked(pygame.K_ESCAPE):
+            from pause_state import PauseState
+            self.state_manager.push_overlay(PauseState(self.game, MultiPlayerState(self.game)))
+            return
+
         # Check pads
         self.player1.update(delta)
         self.check_upper_bottom_boundaries(self.player1.pad)
