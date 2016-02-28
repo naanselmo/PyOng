@@ -16,13 +16,11 @@ class PowerUp(Entity):
     def __init__(self, position, velocity = (0, 0), width=POWERUP_WIDTH, height=POWERUP_HEIGHT):
         super(PowerUp, self).__init__(position, velocity, width, height)
 
-    @abstractmethod
     def update(self, delta):
         pass
 
-    @abstractmethod
     def render(self, canvas):
-        pass
+        canvas.blit(self.image, self.get_bounds())
 
     @abstractmethod
     def apply(self, state, ball):
