@@ -28,6 +28,8 @@ class Entity:
     def update_bounds(self):
         self.bounds.x = self.position.x
         self.bounds.y = self.position.y
+        self.bounds.width = self.width
+        self.bounds.height = self.height
 
     def get_bounds(self):
         return self.bounds

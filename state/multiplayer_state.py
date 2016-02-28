@@ -11,6 +11,8 @@ from entity.pad import Pad
 
 from entity.virtual_entity import VirtualEntity
 
+from entity.powerups.powerup import PowerUp
+
 
 class MultiPlayerState(GameState):
     def __init__(self, game):
@@ -44,28 +46,41 @@ class MultiPlayerState(GameState):
             self.check_upper_bottom_boundaries(b)
 
             # Check each pad
-            for p in (self.player1.pad, self.player2.pad):
-                if self.check_entity_collision(delta, p, b):
-                    self.calculate_collision(p, b)
+            for p in (self.player1, self.player2):
+                if self.check_entity_collision(delta, p.pad, b):
+                    self.calculate_collision(p.pad, b)
                     if b.velocity.x < BALL_SPEED_LIMIT:
                         b.velocity.x *= BALL_SPEED_MULTIPLIER
                     else:
                         b.velocity.x /= BALL_SPEED_MULTIPLIER
 
                     # Transfer a portion of the speed to the ball
-                    b.velocity.y += BALL_SPEED_TRANSFER * p.velocity.y
-                    b.velocity.x += BALL_SPEED_TRANSFER_DASH * p.velocity.x
+                    b.velocity.y += BALL_SPEED_TRANSFER * p.pad.velocity.y
+                    b.velocity.x += BALL_SPEED_TRANSFER_DASH * p.pad.velocity.x
 
                     # Add dash charge to the pad
-                    if p.charge < PAD_MAX_CHARGE:
-                        p.charge += p.charging_rate
+                    if p.pad.charge < PAD_MAX_CHARGE:
+                        p.pad.charge += p.pad.charging_rate
+
+                    b.owner = p
+                    break
+
+            # Check each powerup
+            for p in self.powerups:
+                if self.check_entity_collision(delta, p, b):
+                    p.apply(self, b)
+                    self.powerups.remove(p)
+
+                    break
 
             # Check scoring
             if self.check_left_boundary(b, self.player1, self.player2) or \
             self.check_right_boundary(b, self.player1, self.player2):
                 with self.game.rendering:
                     self.balls = [Ball()]
+                    self.powerups = []
                     self.balls[0].update_bounds()
+                    self.powerups += [PowerUp.get_random_powerup((450, 300))]
                     break
 
     def check_upper_bottom_boundaries(self, entity):

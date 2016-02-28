@@ -11,6 +11,8 @@ from entity.pad import Pad
 
 from entity.virtual_entity import VirtualEntity
 
+from entity.powerups.powerup import PowerUp
+
 
 class SinglePlayerState(GameState):
     def __init__(self, game):
@@ -53,6 +55,11 @@ class SinglePlayerState(GameState):
 
                 # Add dash charge to the pad
                 self.player.score += self.score_multiplier
+
+            # Check each powerup
+            for p in self.powerups:
+                if self.check_entity_collision(delta, p, b):
+                    p.apply(self)
 
             # Check scoring
             if self.check_left_boundary(b, self.player):
