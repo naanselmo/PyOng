@@ -4,15 +4,13 @@ import resources
 from constants import *
 from entity.powerups.powerup import PowerUp
 
-from os.path import join
-
 
 class Shrink(PowerUp):
     """docstring for Shrink"""
 
     def __init__(self, position, velocity = (0, 0), width=POWERUP_WIDTH, height=POWERUP_HEIGHT):
         super(Shrink, self).__init__(position, velocity, width, height)
-        self.image = pygame.image.load(join("resources", "sprites", "shrink.png")).convert()
+        self.image = pygame.image.load(resources.get_sprite("shrink.png")).convert()
 
     def update(self, delta):
         pass

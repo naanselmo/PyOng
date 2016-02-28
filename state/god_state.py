@@ -16,7 +16,7 @@ class GodState(GameState):
 
     def show(self):
         # Start the music and loop it forever
-        pygame.mixer.music.load(resources.get_music('anthem.wav'))
+        pygame.mixer.music.load(resources.get_music('anthem.ogg'))
         pygame.mixer.music.play(-1)
 
         self.menu.init()
