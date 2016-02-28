@@ -48,7 +48,7 @@ class Hiscores:
         Score("Ada Lovelace", 20),
         Score("Ken Thompson", 15),
         Score("Nuno Anselmo", 10),
-        Score("Andre Mendes", 5)]:
+        Score("Andre Mendes", 10)]:
 
             if self.scores is not None:
                 self.scores.append(Score(p.name, p.score))
