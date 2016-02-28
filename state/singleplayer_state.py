@@ -1,6 +1,13 @@
 import pygame
 import math
 
+from pygame.mixer import Sound
+
+import resources
+import hiscores
+
+from platform import node
+
 from constants import *
 from core.game_math import Vector2
 from entity.ball import Ball
@@ -26,8 +33,29 @@ class SinglePlayerState(GameState):
         self.time_since_powerup_check = 0
         self.score = 0
 
+        # Text rendering
+        self.font = None
+        self.font_renderer = None
+
+        # Player Text
+        self.player_lives_label_surface = None
+        self.player_lives_surface = None
+        self.player_score_label_surface = None
+        self.player_score_surface = None
+        self.player_multiplier_label_surface = None
+        self.player_multiplier_surface = None
+
     def show(self):
-        pass
+        self.font = resources.get_font('prstartcustom.otf')
+        self.font_renderer = pygame.font.Font(self.font, 12)
+
+        # Player Text
+        self.player_lives_label_surface = self.font_renderer.render('Lives: ', True, NOT_SO_BLACK)
+        self.player_lives_surface = self.font_renderer.render(str(self.player.lives), True, NOT_SO_BLACK)
+        self.player_score_label_surface = self.font_renderer.render('Score: ', True, NOT_SO_BLACK)
+        self.player_score_surface = self.font_renderer.render(str(self.score), True, NOT_SO_BLACK)
+        self.player_multiplier_label_surface = self.font_renderer.render('Multiplier: ', True, NOT_SO_BLACK)
+        self.player_multiplier_surface = self.font_renderer.render(str(self.score_multiplier), True, NOT_SO_BLACK)
 
     def add_listeners(self):
         super(SinglePlayerState, self).add_listeners()
@@ -42,7 +70,7 @@ class SinglePlayerState(GameState):
         self.time_since_powerup_check += delta
 
         if self.time_since_powerup_check > POWERUP_TIMER:
-            if len(self.powerups) < POWERUP_MAX and randint(0, POWERUP_PROBABILITY) == 0:
+            if len(self.powerups) < POWERUP_MAX and randint(0, POWERUP_PROBABILITY/2) == 0:
                 self.powerups += [PowerUp.get_random_powerup((randint(GAME_WIDTH * 0.3, GAME_WIDTH * 0.7), randint(POWERUP_SIZE, GAME_HEIGHT - POWERUP_SIZE)), False)]
             self.time_since_powerup_check = 0
 
@@ -68,6 +96,8 @@ class SinglePlayerState(GameState):
                 # Add score
                 self.score += self.score_multiplier
 
+                b.owner = self.player
+
             # Check each powerup
             if b.owner != None:
                 for p in self.powerups:
@@ -80,9 +110,12 @@ class SinglePlayerState(GameState):
             # Check scoring
             if self.check_left_boundary(b, self.player):
                 with self.game.rendering:
-                    self.balls = [Ball()]
-                    self.balls[0].update_bounds()
+                    self.balls.remove(b)
+                    if not self.balls:
+                        self.balls += [Ball()]
+
                     break
+
 
     def check_upper_bottom_right_boundaries(self, entity):
         # Check top boundary
@@ -108,9 +141,8 @@ class SinglePlayerState(GameState):
     def check_left_boundary(self, ball, player):
         if ball.position.x <= 0:
             player.lives -= ball.damage
-            print "Player lost a life"
-            if player.lives <= 0:
-                print "Player lost"
+            if player.lives <= 0 and VIRGINITY:
+                self.game.hiscores.add_score(node(), self.score)
             return True
         return False
 
@@ -164,6 +196,17 @@ class SinglePlayerState(GameState):
 
         for p in self.powerups:
             p.render(canvas)
+
+        # Render Score Text
+        self.player_lives_surface = self.font_renderer.render(str(self.player.lives), True, NOT_SO_BLACK)
+        self.player_score_surface = self.font_renderer.render(str(self.score), True, NOT_SO_BLACK)
+        self.player_multiplier_surface = self.font_renderer.render(str(self.score_multiplier), True, NOT_SO_BLACK)
+        canvas.blit(self.player_lives_label_surface, (GAME_WIDTH/3 - self.player_lives_label_surface.get_width(), 15))
+        canvas.blit(self.player_lives_surface, (GAME_WIDTH/3, 15))
+        canvas.blit(self.player_score_label_surface, (GAME_WIDTH/3 - self.player_score_label_surface.get_width(), 30))
+        canvas.blit(self.player_score_surface, (GAME_WIDTH/3, 30))
+        canvas.blit(self.player_multiplier_label_surface, (GAME_WIDTH/3 - self.player_multiplier_label_surface.get_width(), 45))
+        canvas.blit(self.player_multiplier_surface, (GAME_WIDTH/3, 45))
 
     def remove_listeners(self):
         super(SinglePlayerState, self).remove_listeners()

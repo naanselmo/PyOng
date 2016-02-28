@@ -168,20 +168,16 @@ class MultiPlayerState(GameState):
     def check_right_boundary(self, ball, player1, player2):
         if ball.position.x + ball.width >= GAME_WIDTH:
             player1.lives -= ball.damage
-            print "Player 1 lost a life"
             if player1.lives <= 0:
                 self.winner = player2
-                print "Player 2 won"
             return True
         return False
 
     def check_left_boundary(self, ball, player1, player2):
         if ball.position.x <= 0:
             player2.lives -= ball.damage
-            print "Player 2 lost a life"
             if player2.lives <= 0:
                 self.winner = player1
-                print "Player 1 won"
             return True
         return False
 

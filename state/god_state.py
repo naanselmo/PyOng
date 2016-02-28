@@ -247,7 +247,7 @@ class PadSettingsMenu(Menu):
     def save_changes(self):
         import constants
         constants.PAD_SPEED = self.speed_slider.value
-        constants.PAD_HEIGHT = self.height_slider.value
+        constants.PAD_HEIGHT = int(self.height_slider.value)
         constants.PAD_CHARGING_RATE = self.charge_rate_slider.value
         constants.VIRGINITY = False
 
@@ -348,7 +348,7 @@ class BallSettingsMenu(Menu):
         import constants
         constants.BALL_SPEED_LIMIT = self.speed_limit_slider.value
         constants.BALL_SPEED_MULTIPLIER = self.speed_multiplier_slider.value
-        constants.BALL_RADIUS = self.radius_slider.value
+        constants.BALL_RADIUS = int(self.radius_slider.value)
         constants.VIRGINITY = False
 
     def dispose(self):
@@ -445,9 +445,9 @@ class PowerUpSettingsMenu(Menu):
 
     def save_changes(self):
         import constants
-        constants.POWERUP_MAX = self.count_slider.value
-        constants.POWERUP_PROBABILITY = self.probability_slider.value
-        constants.POWERUP_SIZE = self.size_slider.value
+        constants.POWERUP_MAX = int(self.count_slider.value)
+        constants.POWERUP_PROBABILITY = int(self.probability_slider.value)
+        constants.POWERUP_SIZE = int(self.size_slider.value)
         constants.VIRGINITY = False
 
     def dispose(self):
