@@ -94,7 +94,7 @@ class MenuState(GameState):
                     self.konami_code_step += 1
                     if self.konami_code_step >= len(MenuState.KONAMI_CODE):
                         from state.god_state import GodState
-                        self.state_manager.push_overlay(GodState(self.game))
+                        self.state_manager.set_state(GodState(self.game))
                         self.konami_code_step = 0
                         return
                 else:

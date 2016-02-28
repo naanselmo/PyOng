@@ -6,6 +6,7 @@ import resources
 from constants import *
 from core.menu import MenuSlider, VerticalMenuOptions, HorizontalMenuOptions
 from state.game_state import GameState
+from state.menu_state import MenuState
 
 
 class GodState(GameState):
@@ -146,7 +147,7 @@ class MainMenu(Menu):
         elif option == MainMenu.POWERUP_SETTINGS:
             self.state.set_menu(PowerUpSettingsMenu(self.state))
         elif option == MainMenu.EXIT_OPTION:
-            self.state_manager.pop_overlay()
+            self.state_manager.set_state(MenuState(self.state.game))
 
     def on_change(self, old_option, new_option):
         self.select_sound.play()
