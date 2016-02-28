@@ -101,7 +101,7 @@ class SinglePlayerState(GameState):
 
         if self.time_since_powerup_check > POWERUP_TIMER:
             if len(self.powerups) < POWERUP_MAX and randint(0, POWERUP_PROBABILITY/2) == 0:
-                self.powerups += [PowerUp.get_random_powerup((randint(GAME_WIDTH * 0.3, GAME_WIDTH * 0.7), randint(POWERUP_SIZE, GAME_HEIGHT - POWERUP_SIZE)), False)]
+                self.powerups += [PowerUp.get_random_powerup((randint(GAME_WIDTH * 0.3, GAME_WIDTH - POWERUP_SIZE), randint(POWERUP_SIZE, GAME_HEIGHT - POWERUP_SIZE)), False)]
             self.time_since_powerup_check = 0
 
         # Check balls
