@@ -32,6 +32,7 @@ class SinglePlayerState(GameState):
         self.score_multiplier = SINGLEPLAYER_SCORE_MULTIPLIER
         self.time_since_powerup_check = 0
         self.score = 0
+        self.gameover = False
 
         # Text rendering
         self.font = None
@@ -160,6 +161,10 @@ class SinglePlayerState(GameState):
             player.lives -= ball.damage
             if player.lives <= 0 and VIRGINITY:
                 self.game.hiscores.add_score(node(), self.score)
+                self.gameover = True
+                pygame.time.wait(5000)
+                from menu_state import MenuState
+                self.state_manager.set_state(MenuState(self.game))
             return True
         return False
 
@@ -206,6 +211,14 @@ class SinglePlayerState(GameState):
 
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
+
+        if self.gameover:
+            font = resources.get_font('prstartcustom.otf')
+            font_renderer = pygame.font.Font(self.font, 18)
+            end_surface = font_renderer.render("GAME OVER. FINAL SCORE: " + str(self.score), True, NOT_SO_BLACK)
+            canvas.blit(end_surface, (GAME_WIDTH/2 - end_surface.get_width()/2, GAME_HEIGHT/2 - end_surface.get_height()/2))
+            return
+
         self.player.render(canvas)
 
         for b in self.balls:
