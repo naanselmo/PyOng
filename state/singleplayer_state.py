@@ -13,6 +13,8 @@ from entity.virtual_entity import VirtualEntity
 
 from entity.powerups.powerup import PowerUp
 
+from random import randint
+
 
 class SinglePlayerState(GameState):
     def __init__(self, game):
@@ -21,6 +23,8 @@ class SinglePlayerState(GameState):
         self.balls = [Ball()]
         self.powerups = []
         self.score_multiplier = SINGLEPLAYER_SCORE_MULTIPLIER
+        self.time_since_powerup_check = 0
+        self.score = 0
 
     def show(self):
         pass
@@ -33,6 +37,14 @@ class SinglePlayerState(GameState):
         # Check pads
         self.player.update(delta)
         self.check_upper_bottom_right_boundaries(self.player.pad)
+
+        # Increment counter
+        self.time_since_powerup_check += delta
+
+        if self.time_since_powerup_check > POWERUP_TIMER:
+            if len(self.powerups) < POWERUP_MAX and randint(0, POWERUP_PROBABILITY) == 0:
+                self.powerups += [PowerUp.get_random_powerup((randint(GAME_WIDTH * 0.3, GAME_WIDTH * 0.7), randint(POWERUP_HEIGHT, GAME_HEIGHT - POWERUP_HEIGHT)), False)]
+            self.time_since_powerup_check = 0
 
         # Check balls
         for b in self.balls:
@@ -53,13 +65,17 @@ class SinglePlayerState(GameState):
                 b.velocity.y += BALL_SPEED_TRANSFER * self.player.pad.velocity.y
                 b.velocity.x += BALL_SPEED_TRANSFER_DASH * self.player.pad.velocity.x
 
-                # Add dash charge to the pad
-                self.player.score += self.score_multiplier
+                # Add score
+                self.score += self.score_multiplier
 
             # Check each powerup
-            for p in self.powerups:
-                if self.check_entity_collision(delta, p, b):
-                    p.apply(self)
+            if b.owner != None:
+                for p in self.powerups:
+                    if self.check_entity_collision(delta, p, b):
+                        p.apply(self, b)
+                        self.powerups.remove(p)
+
+                        break
 
             # Check scoring
             if self.check_left_boundary(b, self.player):

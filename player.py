@@ -5,7 +5,6 @@ class Player(object):
         self.input = input_handler
         self.controls = controls
         self.pad = pad
-        self.score = 0
         self.lives = lives
 
     def add_listeners(self):

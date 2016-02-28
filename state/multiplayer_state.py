@@ -13,6 +13,8 @@ from entity.virtual_entity import VirtualEntity
 
 from entity.powerups.powerup import PowerUp
 
+from random import randint
+
 
 class MultiPlayerState(GameState):
     def __init__(self, game):
@@ -21,6 +23,7 @@ class MultiPlayerState(GameState):
         self.player2 = Player(game.input, PLAYER2, Pad(Vector2(0 + PAD_DISTANCE, GAME_HEIGHT/2 - PAD_HEIGHT/2), dash_direction=PLAYER2_DASH), MULTIPLAYER_LIVES)
         self.balls = [Ball()]
         self.powerups = []
+        self.time_since_powerup_check = 0
         self.winner = None
 
     def show(self):
@@ -37,6 +40,14 @@ class MultiPlayerState(GameState):
         self.check_upper_bottom_boundaries(self.player1.pad)
         self.player2.update(delta)
         self.check_upper_bottom_boundaries(self.player2.pad)
+
+        # Increment counter
+        self.time_since_powerup_check += delta
+
+        if self.time_since_powerup_check > POWERUP_TIMER:
+            if len(self.powerups) < POWERUP_MAX and randint(0, POWERUP_PROBABILITY) == 0:
+                self.powerups += [PowerUp.get_random_powerup((randint(GAME_WIDTH * 0.3, GAME_WIDTH * 0.7), randint(POWERUP_HEIGHT, GAME_HEIGHT - POWERUP_HEIGHT)))]
+            self.time_since_powerup_check = 0
 
         # Check balls
         for b in self.balls:
@@ -72,21 +83,20 @@ class MultiPlayerState(GameState):
                     break
 
             # Check each powerup
-            for p in self.powerups:
-                if self.check_entity_collision(delta, p, b):
-                    p.apply(self, b)
-                    self.powerups.remove(p)
+            if b.owner != None:
+                for p in self.powerups:
+                    if self.check_entity_collision(delta, p, b):
+                        p.apply(self, b)
+                        self.powerups.remove(p)
 
-                    break
+                        break
 
             # Check scoring
             if self.check_left_boundary(b, self.player1, self.player2) or \
             self.check_right_boundary(b, self.player1, self.player2):
                 with self.game.rendering:
                     self.balls = [Ball()]
-                    self.powerups = []
                     self.balls[0].update_bounds()
-                    self.powerups += [PowerUp.get_random_powerup((450, 300))]
                     break
 
     def check_upper_bottom_boundaries(self, entity):
