@@ -45,7 +45,16 @@ class SinglePlayerState(GameState):
         self.player_multiplier_label_surface = None
         self.player_multiplier_surface = None
 
+        # Sounds
+        self.wall_hit_sound = None
+        self.pad_hit_sound = None
+        self.powerup_sound = None
+
     def show(self):
+        # Start the music
+        pygame.mixer.music.load(resources.get_music('battleofheroes.ogg'))
+        pygame.mixer.music.play(-1)
+
         self.font = resources.get_font('prstartcustom.otf')
         self.font_renderer = pygame.font.Font(self.font, 12)
 
@@ -56,6 +65,11 @@ class SinglePlayerState(GameState):
         self.player_score_surface = self.font_renderer.render(str(self.score), True, NOT_SO_BLACK)
         self.player_multiplier_label_surface = self.font_renderer.render('Multiplier: ', True, NOT_SO_BLACK)
         self.player_multiplier_surface = self.font_renderer.render(str(self.score_multiplier), True, NOT_SO_BLACK)
+
+        # Initialize the sounds
+        self.wall_hit_sound = Sound(resources.get_sound('on_wall_hit.wav'))
+        self.pad_hit_sound = Sound(resources.get_sound('on_pad_hit.wav'))
+        self.powerup_sound = Sound(resources.get_sound('powerup.wav'))
 
     def add_listeners(self):
         super(SinglePlayerState, self).add_listeners()
@@ -79,10 +93,12 @@ class SinglePlayerState(GameState):
             b.update(delta)
 
             # Check each ball
-            self.check_upper_bottom_right_boundaries(b)
+            if self.check_upper_bottom_right_boundaries(b):
+                self.on_wall_hit()
 
             # Check each pad
             if self.check_entity_collision(delta, self.player.pad, b):
+                self.on_pad_hit()
                 self.calculate_collision(self.player.pad, b)
                 if b.velocity.x < BALL_SPEED_LIMIT:
                     b.velocity.x *= BALL_SPEED_MULTIPLIER
@@ -102,6 +118,7 @@ class SinglePlayerState(GameState):
             if b.owner != None:
                 for p in self.powerups:
                     if self.check_entity_collision(delta, p, b):
+                        self.on_powerup()
                         p.apply(self, b)
                         self.powerups.remove(p)
 
@@ -208,9 +225,19 @@ class SinglePlayerState(GameState):
         canvas.blit(self.player_multiplier_label_surface, (GAME_WIDTH/3 - self.player_multiplier_label_surface.get_width(), 45))
         canvas.blit(self.player_multiplier_surface, (GAME_WIDTH/3, 45))
 
+    def on_wall_hit(self):
+        self.wall_hit_sound.play()
+
+    def on_pad_hit(self):
+        self.pad_hit_sound.play()
+
+    def on_powerup(self):
+        self.powerup_sound.play()
+
+
     def remove_listeners(self):
         super(SinglePlayerState, self).remove_listeners()
         self.player.remove_listeners()
 
     def dispose(self):
-        pass
+        pygame.mixer.music.stop()
