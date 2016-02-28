@@ -177,6 +177,9 @@ class MultiPlayerState(GameState):
             player1.lives -= ball.damage
             if player1.lives <= 0:
                 self.winner = player2
+                pygame.time.wait(5000)
+                from menu_state import MenuState
+                self.state_manager.set_state(MenuState(self.game))
             return True
         return False
 
@@ -185,6 +188,9 @@ class MultiPlayerState(GameState):
             player2.lives -= ball.damage
             if player2.lives <= 0:
                 self.winner = player1
+                pygame.time.wait(5000)
+                from menu_state import MenuState
+                self.state_manager.set_state(MenuState(self.game))
             return True
         return False
 
@@ -231,6 +237,18 @@ class MultiPlayerState(GameState):
 
     def render(self, canvas):
         canvas.fill(NOT_SO_WHITE)
+        if self.winner is not None:
+            if self.winner is self.player1:
+                winner = "PLAYER ONE (RIGHT)"
+            else:
+                winner = "PLAYER TWO (LEFT)"
+
+            font = resources.get_font('prstartcustom.otf')
+            font_renderer = pygame.font.Font(self.font, 18)
+            end_surface = font_renderer.render(winner + " IS VICTORIOUS", True, NOT_SO_BLACK)
+            canvas.blit(end_surface, (GAME_WIDTH/2 - end_surface.get_width()/2, GAME_HEIGHT/2 - end_surface.get_height()/2))
+            return
+
         self.player1.render(canvas)
         self.player2.render(canvas)
 
