@@ -21,4 +21,4 @@ class Duplicate(PowerUp):
 
     def apply(self, state, ball):
         with state.game.rendering:
-            state.balls += [Ball(ball.position, (ball.velocity.x * -1, ball.velocity.y), ball.width, ball.height, ball.damage)]
+            state.balls += [Ball(ball.position, (ball.velocity.x * -1, ball.velocity.y), ball.width, ball.height, ball.damage, ball.owner)]

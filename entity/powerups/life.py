@@ -18,4 +18,5 @@ class Life(PowerUp):
         pygame.draw.rect(canvas, NOT_SO_BLACK, self.get_bounds())
 
     def apply(self, state, ball):
-        ball.owner.lives += 1
+        if ball.owner is not None:
+            ball.owner.lives += 1

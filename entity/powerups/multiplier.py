@@ -18,4 +18,4 @@ class Multiplier(PowerUp):
         pygame.draw.rect(canvas, NOT_SO_BLACK, self.get_bounds())
 
     def apply(self, state, ball):
-        state.score_multiplier += POWERUP_MULTIPLIER
+        state.score_multiplier *= POWERUP_MULTIPLIER
