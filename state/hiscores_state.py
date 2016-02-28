@@ -75,9 +75,9 @@ class HiscoresState(GameState):
         return len(score.name) + len(str(score.score))
 
     def on_click(self, option):
-        from menu_state import MenuState
-        self.state_manager.set_state(MenuState(self.game))
         self.select_sound.play()
+        from menu_state import MenuState
+        self.state_manager.pop_overlay()
 
     def on_change(self, old_option, new_option):
         self.select_sound.play()

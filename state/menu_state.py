@@ -138,7 +138,7 @@ class MenuState(GameState):
             self.change_menu_options(self.play_menu_options)
         elif option == MenuState.HISCORES_OPTION:
             from state.hiscores_state import HiscoresState
-            self.state_manager.set_state(HiscoresState(self.game))
+            self.state_manager.push_overlay(HiscoresState(self.game))
 
     def play_menu_on_click(self, option):
         self.select_sound.play()

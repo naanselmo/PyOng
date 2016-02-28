@@ -40,15 +40,15 @@ class Hiscores:
         hiscores_file = open(self.filename, 'a+')
 
         first = True
-        for p in [Score("LINUS TORVALDS", 100),
-        Score("RICHARD STALLMAN", 50),
-        Score("GRACE HOPPER", 40),
-        Score("ALAN TURING", 30),
-        Score("DENNIS RITCHIE", 25),
-        Score("ADA LOVELACE", 20),
-        Score("KEN THOMPSON", 15),
-        Score("NUNO ANSELMO", 10),
-        Score("ANDRE MENDES", 5)]:
+        for p in [Score("Linus Torvalds", 100),
+        Score("Richard Stallman", 50),
+        Score("Grace Hopper", 40),
+        Score("Alan Turing", 30),
+        Score("Dennis Ritchie", 25),
+        Score("Ada Lovelace", 20),
+        Score("Ken Thompson", 15),
+        Score("Nuno Anselmo", 10),
+        Score("Andre Mendes", 5)]:
 
             if self.scores is not None:
                 self.scores.append(Score(p.name, p.score))
